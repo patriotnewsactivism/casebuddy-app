@@ -144,13 +144,32 @@
     clear: both;
   }
 
-  /* Fix for uppy modal z-index */
+  /* Fix for uppy modal z-index and mobile responsiveness */
   .uppy-Dashboard-isInner {
     z-index: 9999 !important;
   }
 
   .uppy-Dashboard-modalOverlay {
     z-index: 9998 !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  /* Mobile responsive uppy modal */
+  @media (max-width: 768px) {
+    .uppy-Dashboard-modal {
+      width: 95vw !important;
+      height: 90vh !important;
+      max-width: 95vw !important;
+      max-height: 90vh !important;
+      margin: 2.5vh auto !important;
+      border-radius: 12px !important;
+    }
+
+    .uppy-Dashboard-isInner {
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 12px !important;
+    }
   }
 
   /* Upload button styling */

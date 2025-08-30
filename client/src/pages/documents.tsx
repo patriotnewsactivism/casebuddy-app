@@ -134,29 +134,29 @@ export default function Documents() {
         onExport={handleExport}
       />
 
-      <div className="p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
+      <div className="p-4 sm:p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
         {/* Documents Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Case Documents</h2>
-            <p className="text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Case Documents</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">
               Manage and organize all case-related documents and evidence
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <ObjectUploader
               maxNumberOfFiles={5}
               maxFileSize={50 * 1024 * 1024} // 50MB
               onGetUploadParameters={getUploadParameters}
               onComplete={handleUploadComplete}
-              buttonClassName="upload-button-primary text-white px-6 py-3 rounded-lg font-bold text-sm"
+              buttonClassName="upload-button-primary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-bold text-sm w-full sm:w-auto"
             >
-              <div className="flex items-center gap-2">
-                <Upload className="w-5 h-5" />
+              <div className="flex items-center justify-center gap-2">
+                <Upload className="w-4 sm:w-5 h-4 sm:h-5" />
                 <span className="font-semibold">Upload Documents</span>
               </div>
             </ObjectUploader>
-            <Badge variant="outline" className="flex items-center gap-1">
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
               <FolderOpen className="w-3 h-3" />
               {filteredDocuments.length} Documents
             </Badge>
@@ -172,11 +172,11 @@ export default function Documents() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Sort by:</label>
+            <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <label className="text-sm font-medium whitespace-nowrap">Sort by:</label>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-32" data-testid="documents-sort-select">
+                  <SelectTrigger className="w-full sm:w-32" data-testid="documents-sort-select">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -202,16 +202,16 @@ export default function Documents() {
 
         {/* Document Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as DocType | "all")}>
-          <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 mb-6 h-auto">
             {docTypes.map(type => (
               <TabsTrigger
                 key={type.value}
                 value={type.value}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3"
                 data-testid={`tab-${type.value}`}
               >
-                <span>{type.label}</span>
-                <Badge variant="secondary" className="text-xs">
+                <span className="truncate">{type.label}</span>
+                <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
                   {type.count}
                 </Badge>
               </TabsTrigger>
@@ -220,7 +220,7 @@ export default function Documents() {
 
           {docTypes.map(type => (
             <TabsContent key={type.value} value={type.value}>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 {sortedDocuments.map((doc) => (
                   <DocumentCard
                     key={doc.id}

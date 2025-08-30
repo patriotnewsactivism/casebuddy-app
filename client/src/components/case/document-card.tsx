@@ -43,11 +43,11 @@ export function DocumentCard({ document, onOpen }: DocumentCardProps) {
   };
 
   return (
-    <Card className="rounded-2xl hover:shadow-md transition-all duration-200 evidence-zoom">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-3">
+    <Card className="rounded-xl sm:rounded-2xl hover:shadow-md transition-all duration-200 evidence-zoom">
+      <CardHeader className="pb-2 p-3 sm:p-4">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-base leading-tight line-clamp-2">
+            <CardTitle className="text-sm sm:text-base leading-tight line-clamp-2">
               {document.title}
             </CardTitle>
             {document.date && (
@@ -62,13 +62,13 @@ export function DocumentCard({ document, onOpen }: DocumentCardProps) {
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-3">
-        <p className="text-sm line-clamp-3 min-h-[3.5rem] text-muted-foreground">
+      <CardContent className="space-y-3 p-3 sm:p-4 pt-0">
+        <p className="text-sm line-clamp-2 sm:line-clamp-3 min-h-[2.5rem] sm:min-h-[3.5rem] text-muted-foreground">
           {document.summary}
         </p>
         
         {document.tags && document.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             {document.tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
@@ -77,11 +77,11 @@ export function DocumentCard({ document, onOpen }: DocumentCardProps) {
           </div>
         )}
         
-        <div className="flex gap-2 pt-1">
+        <div className="flex flex-col sm:flex-row gap-2 pt-1">
           <Button
             variant="outline"
             size="sm"
-            className="flex-1"
+            className="flex-1 text-xs sm:text-sm"
             onClick={() => onOpen?.(document)}
             data-testid={`open-document-${document.id}`}
           >
