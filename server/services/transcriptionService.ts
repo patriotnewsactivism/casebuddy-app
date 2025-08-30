@@ -227,20 +227,27 @@ For this demo, we're showing you how the interface works when transcription is s
    * Get AI-generated summary for the interaction
    */
   async getAutoSummary(interactionId: string): Promise<any> {
-    const response = await fetch(
-      `${ELEVATEAI_BASE_URL}/interactions/${interactionId}/autosummary`,
-      {
-        headers: {
-          'X-API-Token': this.apiToken,
-        },
+    try {
+      const response = await fetch(
+        `${ELEVATEAI_BASE_URL}/interactions/${interactionId}/autosummary`,
+        {
+          headers: {
+            'X-API-Token': this.apiToken,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        // Summary endpoint may not be available for all interactions
+        console.log(`Summary not available for interaction ${interactionId}: ${response.statusText}`);
+        return null;
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to get summary: ${response.statusText}`);
+      return response.json();
+    } catch (error) {
+      console.log(`Could not retrieve summary for interaction ${interactionId}:`, error);
+      return null;
     }
-
-    return response.json();
   }
 
   /**
@@ -484,11 +491,9 @@ For this demo, we're showing you how the interface works when transcription is s
       // Step 5: Get optional AI summary
       let summary = '';
       if (options.includeAISummary) {
-        try {
-          const summaryData = await this.getAutoSummary(interactionId);
-          summary = summaryData.summary || '';
-        } catch (error) {
-          console.error('Failed to get AI summary:', error);
+        const summaryData = await this.getAutoSummary(interactionId);
+        if (summaryData && summaryData.summary) {
+          summary = summaryData.summary;
         }
       }
 
