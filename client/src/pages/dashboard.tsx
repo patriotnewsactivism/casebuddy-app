@@ -46,15 +46,15 @@ export default function Dashboard() {
         onExport={handleExport}
       />
 
-      <div className="p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
+      <div className="p-4 sm:p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
         {/* Case Overview Hero */}
-        <div className="case-header text-white rounded-2xl p-8 mb-8 relative overflow-hidden">
+        <div className="case-header text-white rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold mb-2">CaseBuddy - Evidence Timeline</h1>
-                <p className="text-lg opacity-90 mb-4">Federal Civil Rights Violation Case</p>
-                <div className="flex items-center gap-6 text-sm">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">CaseBuddy - Evidence Timeline</h1>
+                <p className="text-sm sm:text-base lg:text-lg opacity-90 mb-4">Federal Civil Rights Violation Case</p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4" />
                     <span>Case Initiated: June 23, 2025</span>
@@ -69,7 +69,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              <div className="w-32 h-32 rounded-xl overflow-hidden border-2 border-white/20">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden border-2 border-white/20 shrink-0">
                 <img
                   src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400"
                   alt="Federal courthouse with classical columns"
@@ -87,7 +87,7 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
           {/* Recent Timeline */}
           <div className="lg:col-span-2">
             <Card className="rounded-xl">

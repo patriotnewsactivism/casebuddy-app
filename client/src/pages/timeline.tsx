@@ -73,12 +73,12 @@ export default function Timeline() {
         onExport={handleExport}
       />
 
-      <div className="p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
+      <div className="p-4 sm:p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
         {/* Timeline Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-2xl font-bold mb-2">Case Timeline & Events</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Case Timeline & Events</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Chronological view of all case developments and key events
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function Timeline() {
         </div>
 
         {/* Filters and Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Filters */}
           <Card className="lg:col-span-1 rounded-xl">
             <CardHeader className="pb-4">
@@ -100,7 +100,7 @@ export default function Timeline() {
                 Filter Timeline
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-3 sm:p-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Event Type</label>
                 <Select value={filterType} onValueChange={setFilterType}>
@@ -119,7 +119,7 @@ export default function Timeline() {
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Date Range</label>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Input
                     type="date"
                     placeholder="Start date"

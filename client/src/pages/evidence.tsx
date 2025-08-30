@@ -185,12 +185,12 @@ export default function Evidence() {
         onExport={handleExport}
       />
 
-      <div className="p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
+      <div className="p-4 sm:p-6 overflow-y-auto h-full bg-muted/30 print-friendly">
         {/* Evidence Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Evidence Gallery</h2>
-            <p className="text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Evidence Gallery</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Visual and audio evidence collection with metadata tracking
             </p>
           </div>
@@ -203,7 +203,7 @@ export default function Evidence() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <Card className="rounded-xl">
             <CardContent className="p-4 text-center">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
