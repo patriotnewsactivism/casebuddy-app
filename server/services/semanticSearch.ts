@@ -125,7 +125,7 @@ class SemanticSearchService {
       this.documentIndex = this.documentIndex.filter(doc => doc.id !== document.id);
       this.documentIndex.push(indexEntry);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding document to index:', error);
       throw new Error(`Failed to index document: ${error.message}`);
     }
@@ -184,7 +184,7 @@ class SemanticSearchService {
         searchSuggestions: await this.generateSearchSuggestions(query, limitedResults)
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Semantic search error:', error);
       throw new Error(`Search failed: ${error.message}`);
     }
@@ -229,7 +229,7 @@ Focus on legal relevance, factual alignment, and strategic value for the query.`
         }]
       });
       
-      const analysisText = response.content[0].text;
+      const analysisText = (response.content[0] as any).text;
       const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
@@ -286,7 +286,7 @@ Provide analysis in JSON format:
         }]
       });
       
-      const analysisText = response.content[0].text;
+      const analysisText = (response.content[0] as any).text;
       const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
@@ -324,10 +324,10 @@ Provide just the query strings, one per line.`
         }]
       });
       
-      return response.content[0].text
+      return ((response.content[0] as any).text as string)
         .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 5 && !line.match(/^\d+\./))
+        .map((line: string) => line.trim())
+        .filter((line: string) => line.length > 5 && !line.match(/^\d+\./))
         .slice(0, 5);
         
     } catch (error) {

@@ -355,7 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Coupon code is required" });
       }
       
-      const userId = req.user?.id;
+      const userId = (req as any).user?.id;
       const result = await couponService.validateCoupon(code, userId, orderAmount, planType);
       
       res.json(result);
@@ -372,7 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/coupons/apply", authenticateUser, async (req, res) => {
     try {
       const { couponId, originalAmount, discountApplied, subscriptionId, metadata } = req.body;
-      const userId = req.user.id;
+      const userId = (req as any).user.id;
       
       if (!couponId || originalAmount === undefined || discountApplied === undefined) {
         return res.status(400).json({ 
@@ -414,7 +414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/coupons", authenticateUser, requireAdmin, async (req, res) => {
     try {
       const couponData = req.body;
-      couponData.createdBy = req.user.id;
+      couponData.createdBy = (req as any).user.id;
       
       const coupon = await couponService.createCoupon(couponData);
       
@@ -522,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      template.createdBy = req.user.id;
+      template.createdBy = (req as any).user.id;
       const coupons = await couponService.bulkCreateCoupons(template, count, prefix);
       
       res.json({ 

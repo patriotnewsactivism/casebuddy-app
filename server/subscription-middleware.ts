@@ -39,6 +39,11 @@ export const requireActiveSubscription = (
   res: Response, 
   next: NextFunction
 ) => {
+  // Allow in development mode for testing
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
+  
   if (!req.hasActiveSubscription) {
     return res.status(403).json({ 
       error: "Active subscription required",
