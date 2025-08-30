@@ -103,6 +103,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/legal-analytics/analyze-evidence", requireActiveSubscription, LegalAnalyticsService.analyzeEvidence);
   app.post("/api/legal-analytics/similar-cases", requireActiveSubscription, LegalAnalyticsService.findSimilarCases);
 
+  // Legal Brief Generation API Routes (Premium features - require active subscription)
+  app.post("/api/brief-generation/generate", requireActiveSubscription, async (req, res) => {
+    try {
+      const { briefGenerationService } = await import('./services/briefGeneration');
+      const brief = await briefGenerationService.generateLegalBrief(req.body);
+      res.json({ success: true, brief });
+    } catch (error: any) {
+      console.error('Brief generation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to generate legal brief' 
+      });
+    }
+  });
+
+  app.get("/api/brief-generation/templates", async (req, res) => {
+    try {
+      const { briefGenerationService } = await import('./services/briefGeneration');
+      const templates = briefGenerationService.getBriefTemplates();
+      res.json({ success: true, templates });
+    } catch (error: any) {
+      console.error('Error fetching brief templates:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch brief templates' 
+      });
+    }
+  });
+
+  app.post("/api/brief-generation/summary", requireActiveSubscription, async (req, res) => {
+    try {
+      const { briefGenerationService } = await import('./services/briefGeneration');
+      const summary = await briefGenerationService.generateBriefSummary(req.body.brief);
+      res.json({ success: true, summary });
+    } catch (error: any) {
+      console.error('Brief summary generation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to generate brief summary' 
+      });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (req, res) => {
     res.json({ 

@@ -20,15 +20,8 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentCase } from "@/lib/case-context";
-import { 
-  BRIEF_TEMPLATES, 
-  BriefGenerator, 
-  generateBriefPreview,
-  getAllTemplates,
-  getTemplateById,
-  type BriefGenerationOptions,
-  type BriefTemplate 
-} from "@/lib/brief-templates";
+import { apiRequest } from "@/lib/queryClient";
+import type { GeneratedBrief, BriefTemplate } from "@shared/types";
 import {
   exportBriefAsText,
   exportBriefAsHTML,
@@ -36,7 +29,7 @@ import {
   exportBriefAsWord,
   copyBriefToClipboard,
   getFormattedFilename
-} from "@/lib/brief-export";
+} from "@/utils/briefExport";
 
 // Form schema for brief generation
 const briefFormSchema = z.object({
@@ -55,10 +48,44 @@ const briefFormSchema = z.object({
 
 type BriefFormData = z.infer<typeof briefFormSchema>;
 
+interface BriefGenerationRequest {
+  caseTitle: string;
+  caseNumber?: string;
+  jurisdiction: string;
+  clientName: string;
+  attorneyName: string;
+  attorneyBar?: string;
+  courtName: string;
+  briefType: 'motion' | 'complaint' | 'response' | 'appeal' | 'summary_judgment' | 'injunction';
+  legalIssues: string[];
+  factualBackground: string;
+  timeline?: Array<{
+    date: string;
+    event: string;
+    significance: string;
+  }>;
+  documents?: Array<{
+    title: string;
+    type: string;
+    summary: string;
+  }>;
+  evidence?: Array<{
+    title: string;
+    type: string;
+    summary: string;
+  }>;
+  customSections?: Array<{
+    title: string;
+    content: string;
+  }>;
+  includePrecedents?: boolean;
+  includeStatutes?: boolean;
+}
+
 export default function BriefGeneratorPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<BriefTemplate | null>(null);
-  const [generatedBrief, setGeneratedBrief] = useState("");
+  const [generatedBrief, setGeneratedBrief] = useState<GeneratedBrief | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("templates");
@@ -116,29 +143,49 @@ export default function BriefGeneratorPage() {
 
     setIsGenerating(true);
     try {
-      const options: BriefGenerationOptions = {
-        templateId: data.templateId,
-        caseId: currentCase.id,
+      const briefRequest: BriefGenerationRequest = {
+        caseTitle: currentCase.title,
+        caseNumber: currentCase.caseNumber,
+        jurisdiction: currentCase.jurisdiction,
+        clientName: data.clientName || currentCase.clientName,
         attorneyName: data.attorneyName,
-        attorneyBar: data.attorneyBar || "",
-        clientName: data.clientName,
-        courtName: data.courtName,
-        includeTimeline: data.includeTimeline,
-        includeDocuments: data.includeDocuments,
-        includeLegalIssues: data.includeLegalIssues,
+        attorneyBar: data.attorneyBar,
+        courtName: data.courtName || currentCase.courtName || "",
+        briefType: (selectedTemplate?.type as any) || 'motion',
+        legalIssues: currentCase.summary ? [currentCase.summary] : ["Civil rights violation"],
+        factualBackground: currentCase.description,
         customSections: [
           ...(data.customIntroduction ? [{ title: "Introduction", content: data.customIntroduction }] : []),
           ...(data.customArgument ? [{ title: "Argument", content: data.customArgument }] : []),
           ...(data.customConclusion ? [{ title: "Conclusion", content: data.customConclusion }] : []),
         ],
+        includePrecedents: true,
+        includeStatutes: true,
       };
 
-      const brief = generateBriefPreview(options, currentCase);
-      setGeneratedBrief(brief);
-      setActiveTab("preview");
-    } catch (error) {
+      console.log('Generating brief with AI...', briefRequest);
+      const response = await apiRequest('/api/brief-generation/generate', {
+        method: 'POST',
+        body: JSON.stringify(briefRequest),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.success) {
+        // Fix date parsing
+        const brief = {
+          ...response.brief,
+          generatedAt: new Date(response.brief.generatedAt)
+        };
+        setGeneratedBrief(brief);
+        setActiveTab("preview");
+      } else {
+        throw new Error(response.error || 'Failed to generate brief');
+      }
+    } catch (error: any) {
       console.error("Error generating brief:", error);
-      alert("Error generating brief. Please try again.");
+      alert(`Error generating brief: ${error.message || 'Please try again.'}`);
     } finally {
       setIsGenerating(false);
     }
@@ -159,21 +206,42 @@ export default function BriefGeneratorPage() {
     form.handleSubmit(onSubmit)();
   };
 
-  // Filter templates based on current case type and search
-  const availableTemplates = getAllTemplates().filter(template => {
-    const matchesCase = !currentCase || template.caseTypes.includes(currentCase.caseType);
+  // Filter templates based on search query
+  const availableTemplates = templates.filter(template => {
     const matchesSearch = !searchQuery || 
       template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCase && matchesSearch;
+    return matchesSearch;
   });
 
   const templateStats = {
-    total: getAllTemplates().length,
+    total: templates.length,
     available: availableTemplates.length,
-    motions: getAllTemplates().filter(t => t.name.toLowerCase().includes('motion')).length,
-    complaints: getAllTemplates().filter(t => t.name.toLowerCase().includes('complaint')).length,
+    motions: templates.filter(t => t.name.toLowerCase().includes('motion')).length,
+    complaints: templates.filter(t => t.name.toLowerCase().includes('complaint')).length,
   };
+
+  // Load templates on component mount
+  useEffect(() => {
+    const loadTemplates = async () => {
+      try {
+        const response = await apiRequest('/api/brief-generation/templates');
+        if (response.success) {
+          setTemplates(response.templates);
+          
+          // Set default template if none selected
+          if (response.templates.length > 0 && !selectedTemplate) {
+            setSelectedTemplate(response.templates[0]);
+            form.setValue("templateId", response.templates[0].id);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading brief templates:", error);
+      }
+    };
+    
+    loadTemplates();
+  }, []);
 
   return (
     <div className={cn("h-screen overflow-y-auto", isMobile ? "pt-16" : "")}>
