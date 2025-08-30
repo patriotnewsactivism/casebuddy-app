@@ -153,11 +153,43 @@ export const CASE_TIMELINE: TimelineEvent[] = [
   },
   {
     id: "t5",
+    date: "2025-08-25",
+    title: "Criminal Incident at Federal Courthouse",
+    summary: "Defendant Matthew Reardon allegedly engaged in disorderly conduct on federal property. Created loud or unusual noise, created a nuisance, and/or unreasonably obstructed entrances, foyers, lobbies, or corridors at the United States District Court, Western District of Louisiana, Lafayette Division.",
+    docRefs: ["complaint", "incident-report"],
+    tags: ["criminal-incident", "federal-property", "disorderly-conduct", "41-cfr"],
+  },
+  {
+    id: "t6",
+    date: "2025-08-25",
+    title: "Criminal Charges Filed",
+    summary: "United States v. Matthew Reardon - Criminal complaint filed in U.S. District Court, Western District of Louisiana. Case No. 6:25-MJ-00153-01 assigned to Magistrate Whitehurst. Charges under 41 C.F.R. § 102-74.390 for conduct on federal property.",
+    docRefs: ["criminal-complaint", "case-filing"],
+    tags: ["criminal-charges", "magistrate", "federal-court", "filing"],
+  },
+  {
+    id: "t7",
     date: "2025-08-26",
     title: "Public address on Marshal incident",
     summary: "Detailed narrative of force, detention, medical care, transport, and conditions.",
     docRefs: ["public-address"],
     tags: ["statement"],
+  },
+  {
+    id: "t8",
+    date: "2025-08-26",
+    title: "Case Assignment and Legal Team",
+    summary: "Acting U.S. Attorney Alexander C. Van Hook and Assistant U.S. Attorney Ladonte A. Murphy (La. Bar No. 32772) assigned to prosecute United States v. Matthew Reardon. Prosecution team established at U.S. Attorney's Office, 800 Lafayette Street, Suite 2200, Lafayette, Louisiana.",
+    docRefs: ["case-assignment", "prosecutor-assignment"],
+    tags: ["legal-team", "prosecution", "assignment", "usao"],
+  },
+  {
+    id: "t9",
+    date: "2025-08-27",
+    title: "Initial Appearance Scheduled",
+    summary: "Initial appearance and arraignment scheduled before Magistrate Whitehurst for United States v. Matthew Reardon, Case No. 6:25-MJ-00153-01. Defendant to be advised of charges under 41 C.F.R. § 102-74.390 and potential penalties under 41 C.F.R. § 102-74.450.",
+    docRefs: ["scheduling-order", "court-notice"],
+    tags: ["initial-appearance", "arraignment", "magistrate", "scheduling"],
   },
 ];
 
