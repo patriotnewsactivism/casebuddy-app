@@ -184,11 +184,10 @@ export default function AdvancedSearchPage() {
     try {
       const response = await apiRequest('/api/documents/semantic-search', {
         method: 'POST',
-        body: JSON.stringify({
+        data: {
           ...data,
           caseId: currentCase?.id
-        }),
-        headers: { 'Content-Type': 'application/json' }
+        }
       });
 
       if (response.success) {
@@ -216,8 +215,7 @@ export default function AdvancedSearchPage() {
     try {
       const response = await apiRequest('/api/legal-research/precedents', {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
+        data: data
       });
 
       if (response.success) {
@@ -252,8 +250,7 @@ export default function AdvancedSearchPage() {
     try {
       const response = await apiRequest('/api/documents/ocr', {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
+        data: data
       });
 
       clearInterval(progressInterval);
