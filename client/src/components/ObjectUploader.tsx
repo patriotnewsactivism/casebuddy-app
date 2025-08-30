@@ -59,37 +59,54 @@ export function ObjectUploader({
   children,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
-  const [uppy] = useState(() =>
-    new Uppy({
+  const [uppy] = useState(() => {
+    console.log('Initializing Uppy instance');
+    
+    const uppyInstance = new Uppy({
       restrictions: {
         maxNumberOfFiles,
         maxFileSize,
         allowedFileTypes: allowedFileTypes || ['.pdf', '.doc', '.docx', '.txt', '.jpg', '.jpeg', '.png', '.gif', '.mp3', '.wav', '.mp4', '.mov', '.avi', '.mkv'],
       },
       autoProceed: false,
-    })
-      .use(AwsS3, {
-        shouldUseMultipart: false,
-        getUploadParameters: async (file) => {
-          console.log('Getting upload parameters for file:', file.name);
-          try {
-            const params = await onGetUploadParameters();
-            console.log('Upload parameters received:', params.url ? 'URL received' : 'No URL');
-            return params;
-          } catch (error) {
-            console.error('Failed to get upload parameters:', error);
-            throw error;
-          }
-        },
-      })
-      .on("complete", (result) => {
-        console.log('Upload complete:', result);
-        onComplete?.(result);
-      })
-      .on("upload-error", (file, error) => {
-        console.error('Upload error for file:', file?.name, error);
-      })
-  );
+      debug: true,
+    });
+
+    uppyInstance.use(AwsS3, {
+      shouldUseMultipart: false,
+      getUploadParameters: async (file) => {
+        console.log('Getting upload parameters for file:', file.name);
+        try {
+          const params = await onGetUploadParameters();
+          console.log('Upload parameters received:', params);
+          return params;
+        } catch (error) {
+          console.error('Failed to get upload parameters:', error);
+          throw error;
+        }
+      },
+    });
+
+    uppyInstance.on('complete', (result) => {
+      console.log('Upload complete:', result);
+      setShowModal(false);
+      onComplete?.(result);
+    });
+
+    uppyInstance.on('upload-error', (file, error) => {
+      console.error('Upload error for file:', file?.name, error);
+    });
+
+    uppyInstance.on('file-added', (file) => {
+      console.log('File added:', file.name);
+    });
+
+    uppyInstance.on('upload-progress', (file, progress) => {
+      console.log('Upload progress for', file?.name, ':', progress);
+    });
+
+    return uppyInstance;
+  });
 
   return (
     <div>
@@ -104,12 +121,17 @@ export function ObjectUploader({
       <DashboardModal
         uppy={uppy}
         open={showModal}
-        onRequestClose={() => setShowModal(false)}
+        onRequestClose={() => {
+          console.log('Closing modal');
+          setShowModal(false);
+        }}
         proudlyDisplayPoweredByUppy={false}
         showProgressDetails={true}
         hideUploadButton={false}
-        showLinkToFileUploadResult={true}
+        showLinkToFileUploadResult={false}
         showRemoveButtonAfterComplete={true}
+        closeModalOnClickOutside={false}
+        animateOpenClose={true}
       />
     </div>
   );

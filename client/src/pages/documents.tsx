@@ -34,11 +34,16 @@ export default function Documents() {
   };
 
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    console.log("Upload completed:", result);
+    console.log("Upload completed with full result:", result);
+    
     if (result.successful && result.successful.length > 0) {
       try {
+        console.log(`Processing ${result.successful.length} uploaded files`);
+        
         // Process each uploaded file
         for (const file of result.successful) {
+          console.log('Processing uploaded file:', file);
+          
           const response = await fetch('/api/documents', {
             method: 'PUT',
             headers: {
@@ -52,14 +57,24 @@ export default function Documents() {
           });
           
           if (response.ok) {
-            console.log(`File ${file.name} processed successfully`);
+            const result = await response.json();
+            console.log(`File ${file.name} processed successfully:`, result);
+          } else {
+            console.error(`Failed to process file ${file.name}:`, response.status, response.statusText);
           }
         }
         
         alert(`Successfully uploaded ${result.successful.length} file(s)!`);
+        console.log('All files processed successfully');
       } catch (error) {
         console.error('Error processing uploaded files:', error);
         alert('Files uploaded but there was an error processing them.');
+      }
+    } else {
+      console.log('No successful uploads found');
+      if (result.failed && result.failed.length > 0) {
+        console.error('Failed uploads:', result.failed);
+        alert(`Upload failed: ${result.failed.map(f => f.error).join(', ')}`);
       }
     }
   };
