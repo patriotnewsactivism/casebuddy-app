@@ -336,7 +336,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="text-center mt-6 text-sm text-gray-600">
-          <p>© 2024 CaseBuddy Legal Case Management</p>
+          <p>© 2025 CaseBuddy Legal Case Management</p>
         </div>
       </div>
     </div>
