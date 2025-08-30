@@ -6,6 +6,7 @@ import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
 
+
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
@@ -126,12 +127,6 @@ export function ObjectUploader({
           setShowModal(false);
         }}
         proudlyDisplayPoweredByUppy={false}
-        showProgressDetails={true}
-        hideUploadButton={false}
-        showLinkToFileUploadResult={false}
-        showRemoveButtonAfterComplete={true}
-        closeModalOnClickOutside={false}
-        animateOpenClose={true}
       />
     </div>
   );

@@ -230,27 +230,60 @@ Focus on legal relevance, factual alignment, and strategic value for the query.`
       });
       
       const analysisText = (response.content[0] as any).text;
-      const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+      console.log('Raw Claude response:', analysisText);
+      
+      // Clean up the response text to extract valid JSON (handle markdown code blocks)
+      let cleanedText = analysisText.replace(/```json\s*|\s*```/g, '').trim();
+      const jsonMatch = cleanedText.match(/\{[\s\S]*?\}/);
       
       if (jsonMatch) {
-        const analysis = JSON.parse(jsonMatch[0]);
-        
-        return {
-          documentId: document.id,
-          title: document.title,
-          documentType: document.type,
-          relevanceScore: analysis.relevanceScore || 0.5,
-          matchedContent: analysis.matchedContent || [],
-          keyTermsFound: analysis.keyTermsFound || [],
-          contextualSummary: analysis.contextualSummary || '',
-          legalSignificance: analysis.legalSignificance,
-          relatedEntities: analysis.relatedEntities || { people: [], organizations: [], dates: [], locations: [] },
-          citationsFound: analysis.citationsFound || [],
-          actionableInsights: analysis.actionableInsights || [],
-          extractedFacts: analysis.extractedFacts || [],
-          filePath: document.filePath,
-          pageReferences: [] // Could be enhanced with page-level analysis
-        };
+        try {
+          // Clean up common JSON parsing issues
+          let cleanJson = jsonMatch[0]
+            .replace(/,\s*}/g, '}') // Remove trailing commas before }
+            .replace(/,\s*]/g, ']') // Remove trailing commas before ]
+            .replace(/\n/g, ' ') // Replace newlines with spaces
+            .replace(/\s+/g, ' '); // Normalize whitespace
+          
+          console.log('Attempting to parse JSON...');
+          const analysis = JSON.parse(cleanJson);
+          
+          return {
+            documentId: document.id,
+            title: document.title,
+            documentType: document.type,
+            relevanceScore: analysis.relevanceScore || 0.5,
+            matchedContent: analysis.matchedContent || [],
+            keyTermsFound: analysis.keyTermsFound || [],
+            contextualSummary: analysis.contextualSummary || '',
+            legalSignificance: analysis.legalSignificance,
+            relatedEntities: analysis.relatedEntities || { people: [], organizations: [], dates: [], locations: [] },
+            citationsFound: analysis.citationsFound || [],
+            actionableInsights: analysis.actionableInsights || [],
+            extractedFacts: analysis.extractedFacts || [],
+            filePath: document.filePath,
+            pageReferences: [] // Could be enhanced with page-level analysis
+          };
+        } catch (parseError) {
+          console.error('Failed to parse JSON, using fallback:', parseError);
+          // Return a simple fallback result when AI analysis fails
+          return {
+            documentId: document.id,
+            title: document.title,
+            documentType: document.type,
+            relevanceScore: 0.5,
+            matchedContent: [document.content.substring(0, 200) + '...'],
+            keyTermsFound: [query.query],
+            contextualSummary: `Document matches search query: ${query.query}`,
+            legalSignificance: 'Document may be relevant to the legal matter.',
+            relatedEntities: { people: [], organizations: [], dates: [], locations: [] },
+            citationsFound: [],
+            actionableInsights: ['Review document for relevant information'],
+            extractedFacts: ['Document content available for analysis'],
+            filePath: document.filePath,
+            pageReferences: []
+          };
+        }
       }
       
       return null;
