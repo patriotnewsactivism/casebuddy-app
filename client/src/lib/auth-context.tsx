@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async ({ usernameOrEmail, password }: { usernameOrEmail: string; password: string }) => {
       return apiRequest("/api/auth/login", {
         method: "POST",
-        body: { usernameOrEmail, password },
+        data: { usernameOrEmail, password },
       });
     },
     onSuccess: () => {
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async (userData: RegisterData) => {
       return apiRequest("/api/auth/register", {
         method: "POST",
-        body: userData,
+        data: userData,
       });
     },
     onSuccess: () => {
