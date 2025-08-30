@@ -457,17 +457,27 @@ For this demo, we're showing you how the interface works when transcription is s
       if (transcriptData) {
         if (transcriptData.allParticipants) {
           // Use the combined transcript from all participants
-          fullTranscript = transcriptData.allParticipants;
+          fullTranscript = typeof transcriptData.allParticipants === 'string' 
+            ? transcriptData.allParticipants 
+            : JSON.stringify(transcriptData.allParticipants);
         } else if (transcriptData.participantOne || transcriptData.participantTwo) {
           // Combine individual participant transcripts
-          fullTranscript = [
-            transcriptData.participantOne || '',
-            transcriptData.participantTwo || ''
-          ].filter(Boolean).join(' ');
+          const p1 = typeof transcriptData.participantOne === 'string' 
+            ? transcriptData.participantOne 
+            : JSON.stringify(transcriptData.participantOne || '');
+          const p2 = typeof transcriptData.participantTwo === 'string' 
+            ? transcriptData.participantTwo 
+            : JSON.stringify(transcriptData.participantTwo || '');
+          fullTranscript = [p1, p2].filter(Boolean).join(' ');
         } else if (typeof transcriptData === 'string') {
           fullTranscript = transcriptData;
         } else if (transcriptData.transcript) {
-          fullTranscript = transcriptData.transcript;
+          fullTranscript = typeof transcriptData.transcript === 'string'
+            ? transcriptData.transcript
+            : JSON.stringify(transcriptData.transcript);
+        } else {
+          // Fallback: stringify the entire object if structure is unexpected
+          fullTranscript = JSON.stringify(transcriptData);
         }
       }
 
@@ -485,8 +495,8 @@ For this demo, we're showing you how the interface works when transcription is s
       return {
         success: true,
         interactionId,
-        transcript: fullTranscript.trim(),
-        summary,
+        transcript: String(fullTranscript || '').trim(),
+        summary: summary || '',
       };
     } catch (error) {
       console.error('Transcription error:', error);
