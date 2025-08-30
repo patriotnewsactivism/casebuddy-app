@@ -41,7 +41,7 @@ export default function Dashboard() {
   return (
     <div className="flex-1 overflow-hidden">
       <Header
-        title="Case Dashboard"
+        title="CaseBuddy Dashboard"
         onSearch={handleSearch}
         onExport={handleExport}
       />
@@ -52,7 +52,7 @@ export default function Dashboard() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div>
-                <h1 className="text-4xl font-bold mb-2">American Injustice - Evidence Timeline</h1>
+                <h1 className="text-4xl font-bold mb-2">CaseBuddy - Evidence Timeline</h1>
                 <p className="text-lg opacity-90 mb-4">Federal Civil Rights Violation Case</p>
                 <div className="flex items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">

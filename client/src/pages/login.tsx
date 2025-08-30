@@ -104,8 +104,8 @@ export default function LoginPage() {
               <Scale className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">American Injustice</h1>
-          <p className="text-gray-600">Case Intelligence Portal</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">CaseBuddy</h1>
+          <p className="text-gray-600">Your Legal Case Assistant</p>
         </div>
 
         <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
@@ -336,7 +336,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="text-center mt-6 text-sm text-gray-600">
-          <p>© 2024 American Injustice Case Intelligence Portal</p>
+          <p>© 2024 CaseBuddy Legal Case Management</p>
         </div>
       </div>
     </div>

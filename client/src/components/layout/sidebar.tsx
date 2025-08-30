@@ -76,8 +76,8 @@ export function Sidebar({ className }: SidebarProps) {
             <Shield className="text-sidebar-primary-foreground w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-sidebar-foreground">Case Intelligence Portal</h1>
-            <p className="text-sm text-sidebar-foreground/70">Legal Evidence Management</p>
+            <h1 className="text-xl font-bold text-sidebar-foreground">CaseBuddy</h1>
+            <p className="text-sm text-sidebar-foreground/70">Your Legal Case Assistant</p>
           </div>
         </div>
         

@@ -179,7 +179,7 @@ export default function BriefGeneratorPage() {
     <div className={cn("h-screen overflow-y-auto", isMobile ? "pt-16" : "")}>
       <div className="container mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
         <Header
-          title="Legal Brief Generator"
+          title="CaseBuddy Brief Generator"
           onSearch={handleSearch}
           onExport={handleExport}
           searchPlaceholder="Search brief templates..."
