@@ -9,10 +9,33 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
-export const caseDocuments = pgTable("case_documents", {
+export const cases = pgTable("cases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
-  type: text("type").notNull(), // pdf, image, audio, transcript, letter, other
+  caseNumber: text("case_number"),
+  description: text("description"),
+  caseType: varchar("case_type", { length: 50 }).notNull(), // civil_rights, criminal, administrative, etc.
+  status: varchar("status", { length: 20 }).notNull().default("active"), // active, closed, pending, archived
+  priority: varchar("priority", { length: 10 }).notNull().default("medium"), // low, medium, high, urgent
+  court: text("court"),
+  jurisdiction: text("jurisdiction"),
+  opposingParty: text("opposing_party"),
+  leadAttorney: text("lead_attorney"),
+  dateOpened: date("date_opened").notNull(),
+  dateClosed: date("date_closed"),
+  tags: jsonb("tags").$type<string[]>().default([]),
+  notes: text("notes"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: varchar("created_by").references(() => users.id),
+});
+
+export const caseDocuments = pgTable("case_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id").references(() => cases.id).notNull(),
+  title: text("title").notNull(),
+  type: text("type").notNull(), // pdf, image, audio, video, transcript, letter, other
   date: timestamp("date"),
   path: text("path"),
   summary: text("summary"),
@@ -24,6 +47,7 @@ export const caseDocuments = pgTable("case_documents", {
 
 export const timelineEvents = pgTable("timeline_events", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id").references(() => cases.id).notNull(),
   date: timestamp("date").notNull(),
   title: text("title").notNull(),
   summary: text("summary"),
@@ -34,6 +58,7 @@ export const timelineEvents = pgTable("timeline_events", {
 
 export const foiaRequests = pgTable("foia_requests", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id").references(() => cases.id).notNull(),
   agency: text("agency").notNull(),
   requestNumber: text("request_number"),
   status: text("status").notNull(), // submitted, pending, completed, denied
@@ -47,6 +72,7 @@ export const foiaRequests = pgTable("foia_requests", {
 
 export const caseNotes = pgTable("case_notes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id").references(() => cases.id).notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   documentId: varchar("document_id").references(() => caseDocuments.id),
@@ -58,6 +84,7 @@ export const caseNotes = pgTable("case_notes", {
 
 export const motions = pgTable("motions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id").references(() => cases.id).notNull(),
   title: text("title").notNull(),
   type: varchar("type", { length: 50 }).notNull(), // motion_to_dismiss, motion_for_summary_judgment, etc.
   status: varchar("status", { length: 20 }).notNull().default("draft"), // draft, filed, pending, granted, denied
@@ -78,6 +105,7 @@ export const motions = pgTable("motions", {
 
 export const deadlines = pgTable("deadlines", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  caseId: varchar("case_id").references(() => cases.id).notNull(),
   title: text("title").notNull(),
   description: text("description"),
   dueDate: timestamp("due_date").notNull(),
@@ -118,6 +146,12 @@ export const insertCaseNoteSchema = createInsertSchema(caseNotes).omit({
   createdAt: true,
 });
 
+export const insertCaseSchema = createInsertSchema(cases).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertMotionSchema = createInsertSchema(motions).omit({
   id: true,
   createdAt: true,
@@ -144,6 +178,9 @@ export type FoiaRequest = typeof foiaRequests.$inferSelect;
 
 export type InsertCaseNote = z.infer<typeof insertCaseNoteSchema>;
 export type CaseNote = typeof caseNotes.$inferSelect;
+
+export type InsertCase = z.infer<typeof insertCaseSchema>;
+export type Case = typeof cases.$inferSelect;
 
 export type InsertMotion = z.infer<typeof insertMotionSchema>;
 export type Motion = typeof motions.$inferSelect;

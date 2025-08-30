@@ -5,6 +5,8 @@ import { Search, Moon, Sun, Download } from "lucide-react";
 import { formatDate } from "@/lib/case-data";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { CaseSelector } from "@/components/case-selector";
+import { useCurrentCase } from "@/lib/case-context";
 
 interface HeaderProps {
   title: string;
@@ -17,6 +19,7 @@ export function Header({ title, onSearch, onExport, searchPlaceholder = "Search.
   const [searchQuery, setSearchQuery] = useState("");
   const [isDark, setIsDark] = useState(false);
   const isMobile = useIsMobile();
+  const { currentCase } = useCurrentCase();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -65,10 +68,20 @@ export function Header({ title, onSearch, onExport, searchPlaceholder = "Search.
         "flex items-center",
         isMobile ? "justify-between w-full" : "gap-4"
       )}>
-        <h2 className={cn(
-          "font-bold",
-          isMobile ? "text-lg" : "text-2xl"
-        )}>{title}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className={cn(
+            "font-bold",
+            isMobile ? "text-lg" : "text-2xl"
+          )}>{title}</h2>
+          {currentCase && (
+            <div className={cn(
+              "text-sm text-muted-foreground",
+              isMobile && "hidden"
+            )}>
+              • {currentCase.title}
+            </div>
+          )}
+        </div>
         {!isMobile && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Last updated:</span>
@@ -98,8 +111,9 @@ export function Header({ title, onSearch, onExport, searchPlaceholder = "Search.
 
       <div className={cn(
         "flex items-center",
-        isMobile ? "w-full" : "gap-3"
+        isMobile ? "w-full gap-2" : "gap-3"
       )}>
+        {!isMobile && <CaseSelector />}
         <div className={cn(
           "relative",
           isMobile ? "flex-1" : ""

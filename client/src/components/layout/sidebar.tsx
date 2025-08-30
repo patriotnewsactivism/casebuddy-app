@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
-import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar } from "lucide-react";
+import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CaseSelector } from "@/components/case-selector";
+import { useCurrentCase } from "@/lib/case-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CASE_STATS, FOIA_REQUESTS } from "@/lib/case-data";
@@ -33,6 +35,7 @@ export function Sidebar({ className }: SidebarProps) {
     {
       title: "CASE MANAGEMENT",
       items: [
+        { href: "/cases", label: "Case Management", icon: Briefcase },
         { href: "/motions", label: "Motions", icon: Scale },
         { href: "/deadlines", label: "Deadlines", icon: Calendar },
         { href: "/foia", label: "FOIA Requests", icon: FileText, badge: pendingFoiaCount },
@@ -62,13 +65,8 @@ export function Sidebar({ className }: SidebarProps) {
           </div>
         </div>
         
-        <div className="bg-sidebar-primary/10 border border-sidebar-primary/20 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="text-sidebar-primary w-4 h-4" />
-            <span className="font-semibold text-sm text-sidebar-foreground">Active Case</span>
-          </div>
-          <p className="text-xs text-sidebar-foreground/70">Federal Civil Rights Violation</p>
-          <p className="text-xs text-sidebar-foreground/70">Case ID: 2025-CV-8901</p>
+        <div className="space-y-3">
+          <CaseSelector />
         </div>
       </div>
 

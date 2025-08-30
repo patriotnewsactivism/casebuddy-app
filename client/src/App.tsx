@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CaseProvider } from "@/lib/case-context";
 import Dashboard from "@/pages/dashboard";
 import Timeline from "@/pages/timeline";
 import Documents from "@/pages/documents";
@@ -12,6 +13,7 @@ import Evidence from "@/pages/evidence";
 import VideoEvidence from "@/pages/video-evidence";
 import Motions from "@/pages/motions";
 import Deadlines from "@/pages/deadlines";
+import CaseManagement from "@/pages/case-management";
 import FoiaRequests from "@/pages/foia";
 import Analytics from "@/pages/analytics";
 import Search from "@/pages/search";
@@ -27,6 +29,7 @@ function Router() {
       <Route path="/video-evidence" component={VideoEvidence} />
       <Route path="/motions" component={Motions} />
       <Route path="/deadlines" component={Deadlines} />
+      <Route path="/cases" component={CaseManagement} />
       <Route path="/foia" component={FoiaRequests} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/search" component={Search} />
@@ -40,15 +43,17 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="flex h-screen bg-background">
-          <Sidebar />
-          <main className={`flex-1 overflow-hidden ${isMobile ? 'pl-0' : ''}`}>
-            <Router />
-          </main>
-        </div>
-        <Toaster />
-      </TooltipProvider>
+      <CaseProvider>
+        <TooltipProvider>
+          <div className="flex h-screen bg-background">
+            <Sidebar />
+            <main className={`flex-1 overflow-hidden ${isMobile ? 'pl-0' : ''}`}>
+              <Router />
+            </main>
+          </div>
+          <Toaster />
+        </TooltipProvider>
+      </CaseProvider>
     </QueryClientProvider>
   );
 }
