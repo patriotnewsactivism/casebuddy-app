@@ -1,11 +1,14 @@
 import { cn } from "@/lib/utils";
-import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase, Wand2, Brain } from "lucide-react";
+import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase, Wand2, Brain, User, LogOut } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CaseSelector } from "@/components/case-selector";
 import { useCurrentCase } from "@/lib/case-context";
+import { useAuth } from "@/lib/auth-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CASE_STATS, FOIA_REQUESTS } from "@/lib/case-data";
 import { useState } from "react";
@@ -18,6 +21,17 @@ export function Sidebar({ className }: SidebarProps) {
   const [location] = useLocation();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
+  
+  const getUserInitials = (user: any) => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    if (user?.username) {
+      return user.username.slice(0, 2).toUpperCase();
+    }
+    return "U";
+  };
 
   const pendingFoiaCount = FOIA_REQUESTS.filter(r => r.status === "pending").length;
 
@@ -125,6 +139,42 @@ export function Sidebar({ className }: SidebarProps) {
             <span className="font-semibold text-sidebar-foreground">{CASE_STATS.foiaRequests}</span>
           </div>
         </div>
+      </div>
+      
+      {/* User Profile Section */}
+      <div className="mt-auto p-4 border-t border-sidebar-border">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full justify-start h-auto p-3 hover:bg-sidebar-accent">
+              <div className="flex items-center gap-3 w-full">
+                <Avatar className="w-8 h-8">
+                  <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm">
+                    {getUserInitials(user)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-sidebar-foreground">
+                    {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username || "User"}
+                  </p>
+                  <p className="text-xs text-sidebar-foreground/70">{user?.email}</p>
+                </div>
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => logout()} className="text-red-600">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

@@ -6,7 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CaseProvider } from "@/lib/case-context";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import Dashboard from "@/pages/dashboard";
+import LoginPage from "@/pages/login";
 import Timeline from "@/pages/timeline";
 import Documents from "@/pages/documents";
 import Evidence from "@/pages/evidence";
@@ -21,7 +23,24 @@ import Analytics from "@/pages/analytics";
 import Search from "@/pages/search";
 import NotFound from "@/pages/not-found";
 
-function Router() {
+function ProtectedRouter() {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
@@ -42,22 +61,35 @@ function Router() {
   );
 }
 
-function App() {
+function AppContent() {
   const isMobile = useIsMobile();
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <ProtectedRouter />;
+  }
   
   return (
+    <CaseProvider>
+      <div className="flex h-screen bg-background">
+        <Sidebar />
+        <main className={`flex-1 overflow-hidden ${isMobile ? 'pl-0' : ''}`}>
+          <ProtectedRouter />
+        </main>
+      </div>
+    </CaseProvider>
+  );
+}
+
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
-      <CaseProvider>
+      <AuthProvider>
         <TooltipProvider>
-          <div className="flex h-screen bg-background">
-            <Sidebar />
-            <main className={`flex-1 overflow-hidden ${isMobile ? 'pl-0' : ''}`}>
-              <Router />
-            </main>
-          </div>
+          <AppContent />
           <Toaster />
         </TooltipProvider>
-      </CaseProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

@@ -1,12 +1,22 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import cookieParser from "cookie-parser";
 import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
 import { LegalAnalyticsService } from "./legal-analytics";
+import authRoutes from "./auth-routes";
+import { optionalAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Middleware
+  app.use(cookieParser());
+  app.use(optionalAuth);
+
+  // Authentication routes
+  app.use("/api/auth", authRoutes);
+
   // This endpoint is used to serve public assets.
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
