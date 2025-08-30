@@ -40,6 +40,24 @@ interface CaseProviderProps {
 const SAMPLE_CASES: Case[] = [
   {
     id: "1",
+    title: "United States v. Matthew Reardon",
+    caseNumber: "6:25-MJ-00153-01",
+    description: "Federal criminal case charging defendant with loitering, exhibiting disorderly conduct, or exhibiting other conduct on federal property. Allegations include creating loud or unusual noise, creating a nuisance, and/or unreasonably obstructing the usual use of entrances, foyers, lobbies, or corridors on federal property.",
+    caseType: "criminal",
+    status: "active",
+    priority: "high",
+    court: "United States District Court, Western District of Louisiana, Lafayette Division",
+    jurisdiction: "Federal",
+    opposingParty: "Matthew Reardon",
+    leadAttorney: "Ladonte A. Murphy (AUSA)",
+    dateOpened: "2025-08-25",
+    tags: ["criminal", "federal-property", "disorderly-conduct", "magistrate", "41-cfr"],
+    notes: "Case before Magistrate Whitehurst. Charges under 41 C.F.R. § 102-74.390 with penalty provision 41 C.F.R. § 102-74.450. Acting U.S. Attorney: Alexander C. Van Hook. Assistant U.S. Attorney: Ladonte A. Murphy (La. Bar No. 32772).",
+    isActive: true,
+    createdAt: "2025-08-25",
+  },
+  {
+    id: "2",
     title: "Federal Civil Rights Violation Case",
     caseNumber: "2025-CV-8901",
     description: "Constitutional violations by US Marshals, unlawful arrest, and First Amendment rights infringement at Lafayette federal courthouse.",
@@ -57,7 +75,7 @@ const SAMPLE_CASES: Case[] = [
     createdAt: "2025-08-25",
   },
   {
-    id: "2",
+    id: "3",
     title: "FOIA Appeal Case",
     caseNumber: "2025-FOIA-001",
     description: "Appeal of denied FOIA requests for surveillance records and inter-agency communications.",
@@ -84,7 +102,7 @@ export function CaseProvider({ children }: CaseProviderProps) {
   // Set the first case as default if none selected
   useEffect(() => {
     if (!currentCase && cases.length > 0) {
-      setCurrentCase(cases[0]);
+      setCurrentCase(cases[0]); // This will now default to the Reardon case
     }
   }, [cases, currentCase]);
 
