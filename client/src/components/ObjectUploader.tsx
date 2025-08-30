@@ -6,8 +6,6 @@ import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
 
-// Note: Uppy styles are handled by the application's CSS
-
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
@@ -72,10 +70,24 @@ export function ObjectUploader({
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
-        getUploadParameters: onGetUploadParameters,
+        getUploadParameters: async (file) => {
+          console.log('Getting upload parameters for file:', file.name);
+          try {
+            const params = await onGetUploadParameters();
+            console.log('Upload parameters received:', params.url ? 'URL received' : 'No URL');
+            return params;
+          } catch (error) {
+            console.error('Failed to get upload parameters:', error);
+            throw error;
+          }
+        },
       })
       .on("complete", (result) => {
+        console.log('Upload complete:', result);
         onComplete?.(result);
+      })
+      .on("upload-error", (file, error) => {
+        console.error('Upload error for file:', file?.name, error);
       })
   );
 
