@@ -13,6 +13,7 @@ import Timeline from "@/pages/timeline";
 import Documents from "@/pages/documents";
 import Evidence from "@/pages/evidence";
 import VideoEvidence from "@/pages/video-evidence";
+import TranscriptionTest from "@/pages/transcription-test";
 import Motions from "@/pages/motions";
 import Deadlines from "@/pages/deadlines";
 import CaseManagement from "@/pages/case-management";
@@ -52,6 +53,7 @@ function ProtectedRouter() {
       <Route path="/documents" component={Documents} />
       <Route path="/evidence" component={Evidence} />
       <Route path="/video-evidence" component={VideoEvidence} />
+      <Route path="/transcription-test" component={TranscriptionTest} />
       <Route path="/motions" component={Motions} />
       <Route path="/deadlines" component={Deadlines} />
       <Route path="/cases" component={CaseManagement} />
