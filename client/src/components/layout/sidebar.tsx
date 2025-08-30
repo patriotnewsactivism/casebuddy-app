@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase, Wand2 } from "lucide-react";
+import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase, Wand2, Brain } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export function Sidebar({ className }: SidebarProps) {
         { href: "/motions", label: "Motions", icon: Scale },
         { href: "/deadlines", label: "Deadlines", icon: Calendar },
         { href: "/brief-generator", label: "Brief Generator", icon: Wand2 },
+        { href: "/legal-analytics", label: "AI Analytics", icon: Brain },
         { href: "/foia", label: "FOIA Requests", icon: FileText, badge: pendingFoiaCount },
         { href: "/analytics", label: "Analytics", icon: BarChart },
         { href: "/search", label: "Advanced Search", icon: Search },

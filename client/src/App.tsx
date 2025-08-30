@@ -15,6 +15,7 @@ import Motions from "@/pages/motions";
 import Deadlines from "@/pages/deadlines";
 import CaseManagement from "@/pages/case-management";
 import BriefGenerator from "@/pages/brief-generator";
+import LegalAnalytics from "@/pages/legal-analytics";
 import FoiaRequests from "@/pages/foia";
 import Analytics from "@/pages/analytics";
 import Search from "@/pages/search";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/deadlines" component={Deadlines} />
       <Route path="/cases" component={CaseManagement} />
       <Route path="/brief-generator" component={BriefGenerator} />
+      <Route path="/legal-analytics" component={LegalAnalytics} />
       <Route path="/foia" component={FoiaRequests} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/search" component={Search} />

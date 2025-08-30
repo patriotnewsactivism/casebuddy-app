@@ -4,6 +4,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
+import { LegalAnalyticsService } from "./legal-analytics";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // This endpoint is used to serve public assets.
@@ -75,6 +76,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
+  // Legal Analytics API Routes
+  app.post("/api/legal-analytics/predict-outcome", LegalAnalyticsService.predictCaseOutcome);
+  app.post("/api/legal-analytics/judge-analytics", LegalAnalyticsService.analyzeJudge);
+  app.post("/api/legal-analytics/find-precedents", LegalAnalyticsService.findRelevantPrecedents);
+  app.post("/api/legal-analytics/strategy-recommendations", LegalAnalyticsService.generateStrategyRecommendations);
+  app.post("/api/legal-analytics/analyze-evidence", LegalAnalyticsService.analyzeEvidence);
+  app.post("/api/legal-analytics/similar-cases", LegalAnalyticsService.findSimilarCases);
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
