@@ -216,7 +216,7 @@ Ensure the brief is persuasive, well-structured, and ready for court filing.`;
     }
 
     // Generate title
-    const title = `${request.briefType.toUpperCase()} - ${request.caseTitle}`;
+    const title = `${(request.briefType || 'LEGAL BRIEF').toUpperCase()} - ${request.caseTitle || 'Untitled Case'}`;
     
     // Count words
     const wordCount = briefContent.split(/\s+/).length;
@@ -243,7 +243,7 @@ Ensure the brief is persuasive, well-structured, and ready for court filing.`;
         ]
       });
 
-      return response.content[0].text;
+      return (response.content[0] as any).text || 'Summary generation failed.';
     } catch (error) {
       console.error('Error generating brief summary:', error);
       return 'Summary generation failed. Please review the full brief content.';

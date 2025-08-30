@@ -106,9 +106,9 @@ class OCRService {
         keyPoints: analysis.keyPoints
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('OCR extraction error:', error);
-      throw new Error(`Failed to extract text from document: ${error.message}`);
+      throw new Error(`Failed to extract text from document: ${error?.message || 'Unknown error'}`);
     }
   }
   
@@ -206,7 +206,7 @@ Focus on legal accuracy and extract only information that is clearly stated in t
         }]
       });
       
-      const analysisText = response.content[0].text;
+      const analysisText = (response.content[0] as any).text || '';
       
       // Extract JSON from the response
       const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
@@ -254,21 +254,21 @@ Focus on legal accuracy and extract only information that is clearly stated in t
   private extractDatesFromText(text: string): string[] {
     const dateRegex = /\b(?:\d{1,2}\/\d{1,2}\/\d{2,4}|\d{1,2}-\d{1,2}-\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})\b/gi;
     const matches = text.match(dateRegex);
-    return matches ? [...new Set(matches)] : [];
+    return matches ? Array.from(new Set(matches)) : [];
   }
   
   private extractLegalCitations(text: string): string[] {
     // Basic legal citation patterns
     const citationRegex = /\b\d+\s+[A-Z][a-z]+\.?\s+\d+|\b\d+\s+U\.?S\.?\s+\d+|\b\d+\s+F\.?\d*d?\s+\d+/g;
     const matches = text.match(citationRegex);
-    return matches ? [...new Set(matches)] : [];
+    return matches ? Array.from(new Set(matches)) : [];
   }
   
   private extractCaseNumbers(text: string): string[] {
     // Common case number patterns
     const caseNumberRegex = /\b(?:Case\s+No\.?|Civil\s+Action\s+No\.?|Docket\s+No\.?)\s*:?\s*([A-Z0-9-:]+)/gi;
     const matches = text.match(caseNumberRegex);
-    return matches ? [...new Set(matches)] : [];
+    return matches ? Array.from(new Set(matches)) : [];
   }
   
   async performDetailedDocumentAnalysis(ocrResult: OCRResult): Promise<DocumentAnalysis> {
@@ -314,7 +314,7 @@ Please provide a detailed legal analysis in JSON format:
         }]
       });
       
-      const analysisText = response.content[0].text;
+      const analysisText = (response.content[0] as any).text || '';
       const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
