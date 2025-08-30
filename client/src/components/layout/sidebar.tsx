@@ -22,7 +22,7 @@ export function Sidebar({ className }: SidebarProps) {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
-  
+
   const getUserInitials = (user: any) => {
     if (user?.firstName && user?.lastName) {
       return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
@@ -94,7 +94,7 @@ export function Sidebar({ className }: SidebarProps) {
             <p className="text-sm text-sidebar-foreground/70">Your Legal Case Assistant</p>
           </div>
         </div>
-        
+
         <div className="space-y-3">
           <CaseSelector />
         </div>
@@ -154,7 +154,7 @@ export function Sidebar({ className }: SidebarProps) {
           </div>
         </div>
       </div>
-      
+
       {/* User Profile Section */}
       <div className="mt-auto p-4 border-t border-sidebar-border">
         <DropdownMenu>

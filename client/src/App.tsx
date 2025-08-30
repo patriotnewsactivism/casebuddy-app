@@ -23,12 +23,13 @@ import Analytics from "@/pages/analytics";
 import Search from "@/pages/search";
 import AdvancedSearch from "@/pages/advanced-search";
 import SubscriptionPage from "@/pages/subscription";
+import Documentation from "@/pages/documentation";
 import AdminCoupons from "@/pages/admin-coupons";
 import NotFound from "@/pages/not-found";
 
 function ProtectedRouter() {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -61,6 +62,7 @@ function ProtectedRouter() {
       <Route path="/search" component={Search} />
       <Route path="/advanced-search" component={AdvancedSearch} />
       <Route path="/subscription" component={SubscriptionPage} />
+      <Route path="/documentation" component={Documentation} />
       <Route path="/admin/coupons" component={AdminCoupons} />
       <Route component={NotFound} />
     </Switch>
@@ -70,11 +72,11 @@ function ProtectedRouter() {
 function AppContent() {
   const isMobile = useIsMobile();
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <ProtectedRouter />;
   }
-  
+
   return (
     <CaseProvider>
       <div className="flex h-screen bg-background">
