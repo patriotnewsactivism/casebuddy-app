@@ -33,12 +33,46 @@ export default function Documents() {
     setSelectedDocument(doc);
   };
 
-  const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     console.log("Upload completed:", result);
     if (result.successful && result.successful.length > 0) {
-      // TODO: Add the uploaded file to the database and refresh the document list
-      // For now, we'll show a success message
-      console.log('Files uploaded successfully:', result.successful.map(file => file.name));
+      try {
+        // Process each uploaded file
+        for (const file of result.successful) {
+          const response = await fetch('/api/documents', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              documentURL: file.uploadURL,
+              title: file.name,
+              type: getFileType(file.name || ''),
+            }),
+          });
+          
+          if (response.ok) {
+            console.log(`File ${file.name} processed successfully`);
+          }
+        }
+        
+        alert(`Successfully uploaded ${result.successful.length} file(s)!`);
+      } catch (error) {
+        console.error('Error processing uploaded files:', error);
+        alert('Files uploaded but there was an error processing them.');
+      }
+    }
+  };
+
+  const getFileType = (filename: string): string => {
+    const ext = filename.toLowerCase().split('.').pop();
+    switch (ext) {
+      case 'pdf': return 'pdf';
+      case 'jpg': case 'jpeg': case 'png': case 'gif': return 'image';
+      case 'mp3': case 'wav': case 'ogg': return 'audio';
+      case 'mp4': case 'mov': case 'avi': case 'mkv': return 'video';
+      case 'doc': case 'docx': case 'txt': return 'letter';
+      default: return 'pdf';
     }
   };
 
@@ -115,10 +149,11 @@ export default function Documents() {
               maxFileSize={50 * 1024 * 1024} // 50MB
               onGetUploadParameters={getUploadParameters}
               onComplete={handleUploadComplete}
+              buttonClassName="upload-button-primary text-white px-6 py-3 rounded-lg font-bold text-sm"
             >
               <div className="flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                <span>Upload Documents</span>
+                <Upload className="w-5 h-5" />
+                <span className="font-semibold">Upload Documents</span>
               </div>
             </ObjectUploader>
             <Badge variant="outline" className="flex items-center gap-1">

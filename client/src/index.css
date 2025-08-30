@@ -153,6 +153,24 @@
     z-index: 9998 !important;
   }
 
+  /* Upload button styling */
+  .upload-button-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--chart-3)) 100%);
+    border: 2px solid hsl(var(--primary));
+    box-shadow: 0 4px 15px hsla(var(--primary), 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .upload-button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px hsla(var(--primary), 0.4);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--chart-2)) 100%);
+  }
+
+  .upload-button-primary:active {
+    transform: translateY(0);
+  }
+
   .brief-card {
     background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%);
     border: 1px solid hsl(var(--border));
