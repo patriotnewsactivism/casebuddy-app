@@ -203,7 +203,7 @@ export default function BriefGeneratorPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          <Card className="rounded-xl">
+          <Card className="rounded-xl stats-card">
             <CardContent className="p-3 md:p-4 text-center">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
                 <FileText className="w-5 h-5 md:w-6 md:h-6 text-primary" />
@@ -213,7 +213,7 @@ export default function BriefGeneratorPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl">
+          <Card className="rounded-xl stats-card">
             <CardContent className="p-3 md:p-4 text-center">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
                 <Wand2 className="w-5 h-5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400" />
@@ -223,7 +223,7 @@ export default function BriefGeneratorPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl">
+          <Card className="rounded-xl stats-card">
             <CardContent className="p-3 md:p-4 text-center">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
                 <FileText className="w-5 h-5 md:w-6 md:h-6 text-green-600 dark:text-green-400" />
@@ -233,7 +233,7 @@ export default function BriefGeneratorPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl">
+          <Card className="rounded-xl stats-card">
             <CardContent className="p-3 md:p-4 text-center">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
                 <Settings className="w-5 h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
@@ -252,7 +252,7 @@ export default function BriefGeneratorPage() {
           </TabsList>
 
           <TabsContent value="templates" className="space-y-4">
-            <Card className="rounded-xl">
+            <Card className="rounded-xl brief-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5" />
@@ -266,7 +266,7 @@ export default function BriefGeneratorPage() {
                     <Card 
                       key={template.id} 
                       className={cn(
-                        "cursor-pointer transition-colors hover:bg-muted/50",
+                        "cursor-pointer brief-card",
                         selectedTemplate?.id === template.id && "ring-2 ring-primary"
                       )}
                       onClick={() => {
@@ -305,7 +305,7 @@ export default function BriefGeneratorPage() {
           </TabsContent>
 
           <TabsContent value="generator" className="space-y-4">
-            <Card className="rounded-xl">
+            <Card className="rounded-xl brief-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wand2 className="w-5 h-5" />
@@ -580,7 +580,7 @@ export default function BriefGeneratorPage() {
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-4">
-            <Card className="rounded-xl">
+            <Card className="rounded-xl brief-card">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">

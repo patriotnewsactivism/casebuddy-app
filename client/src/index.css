@@ -3,42 +3,42 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(210, 40%, 98%);
-  --foreground: hsl(222.2, 84%, 4.9%);
+  --background: hsl(45, 100%, 98%);
+  --foreground: hsl(220, 15%, 20%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222.2, 84%, 4.9%);
+  --card-foreground: hsl(220, 15%, 20%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(222.2, 84%, 4.9%);
-  --primary: hsl(214, 84%, 56%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(210, 40%, 96%);
-  --secondary-foreground: hsl(222.2, 84%, 4.9%);
-  --muted: hsl(210, 40%, 96%);
-  --muted-foreground: hsl(215.4, 16.3%, 46.9%);
-  --accent: hsl(210, 40%, 96%);
-  --accent-foreground: hsl(222.2, 84%, 4.9%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(214.3, 31.8%, 91.4%);
-  --input: hsl(214.3, 31.8%, 91.4%);
-  --ring: hsl(214, 84%, 56%);
-  --chart-1: hsl(214, 84%, 56%);
-  --chart-2: hsl(142.1, 76.2%, 36.3%);
-  --chart-3: hsl(38.3, 92.1%, 50.2%);
-  --chart-4: hsl(0, 84.2%, 60.2%);
-  --chart-5: hsl(280, 100%, 70%);
-  --sidebar: hsl(180, 6.6667%, 97.0588%);
-  --sidebar-foreground: hsl(210, 25%, 7.8431%);
-  --sidebar-primary: hsl(214, 84%, 56%);
-  --sidebar-primary-foreground: hsl(210, 40%, 98%);
-  --sidebar-accent: hsl(210, 40%, 96%);
-  --sidebar-accent-foreground: hsl(222.2, 84%, 4.9%);
-  --sidebar-border: hsl(214.3, 31.8%, 91.4%);
-  --sidebar-ring: hsl(214, 84%, 56%);
+  --popover-foreground: hsl(220, 15%, 20%);
+  --primary: hsl(25, 95%, 53%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(45, 80%, 95%);
+  --secondary-foreground: hsl(220, 15%, 25%);
+  --muted: hsl(45, 50%, 96%);
+  --muted-foreground: hsl(220, 10%, 55%);
+  --accent: hsl(40, 90%, 92%);
+  --accent-foreground: hsl(220, 15%, 25%);
+  --destructive: hsl(0, 85%, 58%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(45, 30%, 88%);
+  --input: hsl(45, 40%, 94%);
+  --ring: hsl(25, 95%, 53%);
+  --chart-1: hsl(25, 95%, 53%);
+  --chart-2: hsl(160, 85%, 45%);
+  --chart-3: hsl(45, 95%, 55%);
+  --chart-4: hsl(350, 85%, 60%);
+  --chart-5: hsl(270, 85%, 65%);
+  --sidebar: hsl(35, 100%, 96%);
+  --sidebar-foreground: hsl(220, 15%, 25%);
+  --sidebar-primary: hsl(25, 95%, 53%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(40, 80%, 90%);
+  --sidebar-accent-foreground: hsl(220, 15%, 25%);
+  --sidebar-border: hsl(45, 30%, 85%);
+  --sidebar-ring: hsl(25, 95%, 53%);
   --font-sans: Inter, system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: JetBrains Mono, monospace;
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 }
 
 .dark {
@@ -84,28 +84,71 @@
 @layer components {
   .timeline-line {
     background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--chart-2)));
+    box-shadow: 0 2px 8px hsla(var(--primary), 0.2);
   }
 
   .case-header {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--chart-2)) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--chart-3)) 50%, hsl(var(--chart-2)) 100%);
+    box-shadow: 0 4px 20px hsla(var(--primary), 0.25);
   }
 
   .evidence-zoom:hover {
     transform: scale(1.02);
-    transition: transform 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 8px 25px hsla(var(--primary), 0.15);
   }
 
   .sidebar-nav {
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid hsl(var(--border));
+    box-shadow: 2px 0 15px hsla(var(--primary), 0.08);
   }
 
   .case-stat {
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 2px 10px hsla(var(--primary), 0.1);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .case-stat:hover {
+    box-shadow: 0 4px 20px hsla(var(--primary), 0.15);
+    transform: translateY(-1px);
   }
 
   .document-viewer {
     max-height: 70vh;
     overflow-y: auto;
+    background: linear-gradient(to bottom, hsl(var(--card)), hsl(var(--muted)));
+  }
+
+  .brief-card {
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--accent)) 100%);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 3px 15px hsla(var(--primary), 0.12);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .brief-card:hover {
+    box-shadow: 0 6px 25px hsla(var(--primary), 0.2);
+    transform: translateY(-2px);
+    border-color: hsl(var(--primary));
+  }
+
+  .stats-card {
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 2px 12px hsla(var(--primary), 0.1);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .stats-card:hover {
+    box-shadow: 0 4px 20px hsla(var(--primary), 0.15);
+    transform: translateY(-1px);
+  }
+
+  .warm-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--chart-3)) 50%, hsl(var(--chart-2)) 100%);
   }
 
   .print-friendly {
