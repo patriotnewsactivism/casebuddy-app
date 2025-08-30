@@ -10,6 +10,7 @@ import { CheckCircle, Crown, Clock, CreditCard, Shield, Zap, AlertTriangle } fro
 import { useAuth } from "@/lib/auth-context";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { CouponInput } from "@/components/coupon-input";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
 
@@ -21,9 +22,10 @@ interface SubscriptionStatus {
   isSubscriptionActive: boolean;
 }
 
-function SubscriptionForm({ clientSecret, onSuccess }: { 
+function SubscriptionForm({ clientSecret, onSuccess, appliedCoupon }: { 
   clientSecret: string; 
   onSuccess: () => void; 
+  appliedCoupon?: CouponValidationResult | null;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -53,9 +55,28 @@ function SubscriptionForm({ clientSecret, onSuccess }: {
         variant: "destructive",
       });
     } else {
+      // Apply coupon if valid
+      if (appliedCoupon?.valid && appliedCoupon.coupon) {
+        try {
+          await apiRequest('/api/coupons/apply', {
+            method: 'POST',
+            data: {
+              couponId: appliedCoupon.coupon.id,
+              originalAmount: 14.95,
+              discountApplied: appliedCoupon.discountAmount || 0,
+              subscriptionId: clientSecret, // Use client secret as temp ID
+            }
+          });
+        } catch (error) {
+          console.error('Failed to record coupon usage:', error);
+        }
+      }
+
       toast({
         title: "Payment Successful",
-        description: "Welcome to CaseBuddy Pro!",
+        description: appliedCoupon?.valid ? 
+          `Welcome to CaseBuddy Pro! Your coupon saved you $${appliedCoupon.discountAmount?.toFixed(2)}` :
+          "Welcome to CaseBuddy Pro!",
       });
       onSuccess();
     }
@@ -78,12 +99,30 @@ function SubscriptionForm({ clientSecret, onSuccess }: {
   );
 }
 
+interface CouponValidationResult {
+  valid: boolean;
+  coupon?: {
+    id: number;
+    code: string;
+    description: string | null;
+    discountType: 'percentage' | 'fixed';
+    discountValue: string;
+  };
+  error?: string;
+  discountAmount?: number;
+  finalAmount?: number;
+}
+
 export default function SubscriptionPage() {
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  const MONTHLY_PRICE = 14.95;
+  const finalPrice = appliedCoupon?.valid ? appliedCoupon.finalAmount || MONTHLY_PRICE : MONTHLY_PRICE;
 
   useEffect(() => {
     loadSubscriptionStatus();
@@ -105,6 +144,10 @@ export default function SubscriptionPage() {
       setIsLoading(true);
       const response = await apiRequest("/api/subscription/start", {
         method: "POST",
+        data: {
+          couponCode: appliedCoupon?.valid ? appliedCoupon.coupon?.code : undefined,
+          finalAmount: finalPrice,
+        }
       });
       
       if (response.clientSecret) {
@@ -284,13 +327,21 @@ export default function SubscriptionPage() {
 
             <div className="space-y-2">
               {subscriptionStatus?.status === "trial" && (
-                <Button 
-                  onClick={handleStartSubscription} 
-                  className="w-full"
-                  data-testid="button-start-subscription"
-                >
-                  Upgrade to Pro ($14.95/month)
-                </Button>
+                <div className="space-y-4">
+                  <CouponInput
+                    orderAmount={MONTHLY_PRICE}
+                    planType="pro"
+                    onCouponApplied={(coupon) => setAppliedCoupon(coupon)}
+                    onCouponRemoved={() => setAppliedCoupon(null)}
+                  />
+                  <Button 
+                    onClick={handleStartSubscription} 
+                    className="w-full"
+                    data-testid="button-start-subscription"
+                  >
+                    Upgrade to Pro (${finalPrice.toFixed(2)}/month)
+                  </Button>
+                </div>
               )}
               
               {subscriptionStatus?.status === "active" && (
@@ -381,8 +432,17 @@ export default function SubscriptionPage() {
 
             <Separator className="my-4" />
 
-            <div className="text-center">
-              <p className="text-2xl font-bold">$14.95<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+            <div className="text-center space-y-2">
+              {appliedCoupon?.valid && appliedCoupon.discountAmount && (
+                <div className="space-y-1">
+                  <p className="text-lg text-gray-500 line-through">${MONTHLY_PRICE.toFixed(2)}</p>
+                  <p className="text-sm text-green-600">Save ${appliedCoupon.discountAmount.toFixed(2)}</p>
+                </div>
+              )}
+              <p className="text-2xl font-bold">
+                ${finalPrice.toFixed(2)}
+                <span className="text-sm font-normal text-muted-foreground">/month</span>
+              </p>
               <p className="text-sm text-muted-foreground">14-day free trial • Cancel anytime</p>
             </div>
           </CardContent>
@@ -399,8 +459,10 @@ export default function SubscriptionPage() {
             <Elements stripe={stripePromise} options={{ clientSecret }}>
               <SubscriptionForm 
                 clientSecret={clientSecret} 
+                appliedCoupon={appliedCoupon}
                 onSuccess={() => {
                   setClientSecret(null);
+                  setAppliedCoupon(null);
                   loadSubscriptionStatus();
                 }} 
               />

@@ -8,12 +8,13 @@ import {
 import { LegalAnalyticsService } from "./legal-analytics";
 import authRoutes from "./auth-routes";
 import subscriptionRoutes from "./subscription-routes";
-import { optionalAuth } from "./auth";
+import { optionalAuth, authenticateUser } from "./auth";
 import { checkSubscription, requireActiveSubscription } from "./subscription-middleware";
 import { briefGenerationService } from "./services/briefGeneration";
 import { ocrService } from "./services/ocrService";
 import { precedentResearchService } from "./services/precedentResearch";
 import { semanticSearchService } from "./services/semanticSearch";
+import { couponService } from "./services/couponService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware
@@ -339,6 +340,201 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         error: error.message || 'Failed to index document' 
+      });
+    }
+  });
+
+  // Coupon Management Routes
+  
+  // Validate coupon code
+  app.post("/api/coupons/validate", async (req, res) => {
+    try {
+      const { code, orderAmount, planType } = req.body;
+      
+      if (!code) {
+        return res.status(400).json({ error: "Coupon code is required" });
+      }
+      
+      const userId = req.user?.id;
+      const result = await couponService.validateCoupon(code, userId, orderAmount, planType);
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error('Coupon validation error:', error);
+      res.status(500).json({ 
+        valid: false, 
+        error: error.message || 'Failed to validate coupon' 
+      });
+    }
+  });
+
+  // Apply coupon during registration/subscription
+  app.post("/api/coupons/apply", authenticateUser, async (req, res) => {
+    try {
+      const { couponId, originalAmount, discountApplied, subscriptionId, metadata } = req.body;
+      const userId = req.user.id;
+      
+      if (!couponId || originalAmount === undefined || discountApplied === undefined) {
+        return res.status(400).json({ 
+          error: "Coupon ID, original amount, and discount amount are required" 
+        });
+      }
+      
+      await couponService.applyCoupon(
+        couponId, 
+        userId, 
+        originalAmount, 
+        discountApplied, 
+        subscriptionId, 
+        metadata
+      );
+      
+      res.json({ 
+        success: true, 
+        message: "Coupon applied successfully" 
+      });
+    } catch (error: any) {
+      console.error('Coupon application error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to apply coupon' 
+      });
+    }
+  });
+
+  // Admin Routes (require admin role)
+  const requireAdmin = (req: any, res: any, next: any) => {
+    if (!req.user || req.user?.role !== 'admin') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    next();
+  };
+
+  // Create coupon (admin only)
+  app.post("/api/admin/coupons", authenticateUser, requireAdmin, async (req, res) => {
+    try {
+      const couponData = req.body;
+      couponData.createdBy = req.user.id;
+      
+      const coupon = await couponService.createCoupon(couponData);
+      
+      res.json({ 
+        success: true, 
+        coupon 
+      });
+    } catch (error: any) {
+      console.error('Coupon creation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to create coupon' 
+      });
+    }
+  });
+
+  // Get all coupons (admin only)
+  app.get("/api/admin/coupons", authenticateUser, requireAdmin, async (req, res) => {
+    try {
+      const coupons = await couponService.getAllCoupons();
+      
+      res.json({ 
+        success: true, 
+        coupons 
+      });
+    } catch (error: any) {
+      console.error('Fetch coupons error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch coupons' 
+      });
+    }
+  });
+
+  // Update coupon (admin only)
+  app.put("/api/admin/coupons/:id", authenticateUser, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      const coupon = await couponService.updateCoupon(id, updateData);
+      
+      res.json({ 
+        success: true, 
+        coupon 
+      });
+    } catch (error: any) {
+      console.error('Coupon update error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to update coupon' 
+      });
+    }
+  });
+
+  // Deactivate coupon (admin only)
+  app.delete("/api/admin/coupons/:id", authenticateUser, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      const coupon = await couponService.deactivateCoupon(id);
+      
+      res.json({ 
+        success: true, 
+        message: "Coupon deactivated successfully",
+        coupon 
+      });
+    } catch (error: any) {
+      console.error('Coupon deactivation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to deactivate coupon' 
+      });
+    }
+  });
+
+  // Get coupon analytics (admin only)
+  app.get("/api/admin/coupons/analytics/:id?", authenticateUser, requireAdmin, async (req, res) => {
+    try {
+      const couponId = req.params.id ? parseInt(req.params.id) : undefined;
+      
+      const analytics = await couponService.getCouponAnalytics(couponId);
+      
+      res.json({ 
+        success: true, 
+        analytics 
+      });
+    } catch (error: any) {
+      console.error('Coupon analytics error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch analytics' 
+      });
+    }
+  });
+
+  // Bulk create coupons (admin only)
+  app.post("/api/admin/coupons/bulk", authenticateUser, requireAdmin, async (req, res) => {
+    try {
+      const { template, count, prefix } = req.body;
+      
+      if (!template || !count || count <= 0 || count > 100) {
+        return res.status(400).json({ 
+          error: "Valid template and count (1-100) are required" 
+        });
+      }
+      
+      template.createdBy = req.user.id;
+      const coupons = await couponService.bulkCreateCoupons(template, count, prefix);
+      
+      res.json({ 
+        success: true, 
+        message: `${coupons.length} coupons created successfully`,
+        coupons 
+      });
+    } catch (error: any) {
+      console.error('Bulk coupon creation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to create coupons' 
       });
     }
   });

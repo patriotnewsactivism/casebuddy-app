@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase, Wand2, Brain, User, LogOut, Crown } from "lucide-react";
+import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video, Menu, Scale, Calendar, Briefcase, Wand2, Brain, User, LogOut, Crown, Ticket, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,14 @@ export function Sidebar({ className }: SidebarProps) {
         { href: "/annotations", label: "Annotations", icon: Highlighter },
         { href: "/export", label: "Export Reports", icon: Download },
       ]
-    }
+    },
+    // Admin section - only show for admin users
+    ...(user?.role === 'admin' ? [{
+      title: "ADMINISTRATION",
+      items: [
+        { href: "/admin/coupons", label: "Coupon Management", icon: Ticket },
+      ]
+    }] : [])
   ];
 
   const SidebarContent = () => (

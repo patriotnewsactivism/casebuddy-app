@@ -1,5 +1,5 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, jsonb, boolean, date } from "drizzle-orm/pg-core";
+import { sql, relations } from "drizzle-orm";
+import { pgTable, text, varchar, timestamp, jsonb, boolean, date, serial, integer, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -217,3 +217,73 @@ export type Motion = typeof motions.$inferSelect;
 
 export type InsertDeadline = z.infer<typeof insertDeadlineSchema>;
 export type Deadline = typeof deadlines.$inferSelect;
+
+// Coupon Codes table
+export const couponCodes = pgTable("coupon_codes", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 50 }).unique().notNull(),
+  description: text("description"),
+  discountType: varchar("discount_type", { length: 20 }).notNull(), // 'percentage' or 'fixed'
+  discountValue: numeric("discount_value", { precision: 10, scale: 2 }).notNull(),
+  maxUses: integer("max_uses").default(1), // null = unlimited, 1 = single use
+  currentUses: integer("current_uses").default(0).notNull(),
+  validFrom: timestamp("valid_from").defaultNow().notNull(),
+  validUntil: timestamp("valid_until"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdBy: varchar("created_by"), // admin who created it
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  // Additional constraints
+  minOrderValue: numeric("min_order_value", { precision: 10, scale: 2 }),
+  applicablePlans: text("applicable_plans").array(), // which subscription plans this applies to
+  metadata: jsonb("metadata"), // flexible data for additional rules
+});
+
+// Coupon Usage tracking
+export const couponUsage = pgTable("coupon_usage", {
+  id: serial("id").primaryKey(),
+  couponId: integer("coupon_id").references(() => couponCodes.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  usedAt: timestamp("used_at").defaultNow().notNull(),
+  discountApplied: numeric("discount_applied", { precision: 10, scale: 2 }).notNull(),
+  originalAmount: numeric("original_amount", { precision: 10, scale: 2 }).notNull(),
+  finalAmount: numeric("final_amount", { precision: 10, scale: 2 }).notNull(),
+  subscriptionId: varchar("subscription_id"), // Stripe subscription ID if applicable
+  metadata: jsonb("metadata"),
+});
+
+// Relations
+export const couponCodesRelations = relations(couponCodes, ({ many }) => ({
+  usage: many(couponUsage),
+}));
+
+export const couponUsageRelations = relations(couponUsage, ({ one }) => ({
+  coupon: one(couponCodes, {
+    fields: [couponUsage.couponId],
+    references: [couponCodes.id],
+  }),
+  user: one(users, {
+    fields: [couponUsage.userId],
+    references: [users.id],
+  }),
+}));
+
+// Insert schemas
+export const insertCouponCodeSchema = createInsertSchema(couponCodes).omit({
+  id: true,
+  currentUses: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCouponUsageSchema = createInsertSchema(couponUsage).omit({
+  id: true,
+  usedAt: true,
+});
+
+// Types
+export type InsertCouponCode = z.infer<typeof insertCouponCodeSchema>;
+export type CouponCode = typeof couponCodes.$inferSelect;
+
+export type InsertCouponUsage = z.infer<typeof insertCouponUsageSchema>;
+export type CouponUsage = typeof couponUsage.$inferSelect;
