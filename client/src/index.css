@@ -119,7 +119,38 @@
   .document-viewer {
     max-height: 70vh;
     overflow-y: auto;
+    overflow-x: hidden;
     background: linear-gradient(to bottom, hsl(var(--card)), hsl(var(--muted)));
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Fix text overlapping in document viewer */
+  .document-viewer iframe,
+  .document-viewer img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .document-viewer iframe {
+    min-height: 60vh;
+  }
+
+  /* Ensure proper spacing and prevent overlap */
+  .document-viewer + * {
+    margin-top: 1rem;
+    clear: both;
+  }
+
+  /* Fix for uppy modal z-index */
+  .uppy-Dashboard-isInner {
+    z-index: 9999 !important;
+  }
+
+  .uppy-Dashboard-modalOverlay {
+    z-index: 9998 !important;
   }
 
   .brief-card {
