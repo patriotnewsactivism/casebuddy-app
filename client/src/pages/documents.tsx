@@ -35,7 +35,11 @@ export default function Documents() {
 
   const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     console.log("Upload completed:", result);
-    // Handle successful upload - refresh document list
+    if (result.successful && result.successful.length > 0) {
+      // TODO: Add the uploaded file to the database and refresh the document list
+      // For now, we'll show a success message
+      console.log('Files uploaded successfully:', result.successful.map(file => file.name));
+    }
   };
 
   const getUploadParameters = async () => {
@@ -85,6 +89,7 @@ export default function Documents() {
     { value: "transcript", label: "Transcripts", count: CASE_DOCUMENTS.filter(d => d.type === "transcript").length },
     { value: "image", label: "Images", count: CASE_DOCUMENTS.filter(d => d.type === "image").length },
     { value: "audio", label: "Audio", count: CASE_DOCUMENTS.filter(d => d.type === "audio").length },
+    { value: "video", label: "Videos", count: CASE_DOCUMENTS.filter(d => d.type === "video").length },
   ];
 
   return (

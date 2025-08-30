@@ -24,9 +24,9 @@ export default function Evidence() {
     window.print();
   };
 
-  // Filter evidence items (images, audio)
+  // Filter evidence items (images, audio, video)
   const evidenceItems = CASE_DOCUMENTS.filter(doc => 
-    doc.type === "image" || doc.type === "audio"
+    doc.type === "image" || doc.type === "audio" || doc.type === "video"
   );
 
   const filteredEvidence = evidenceItems.filter(item => {
@@ -48,6 +48,7 @@ export default function Evidence() {
     total: evidenceItems.length,
     images: evidenceItems.filter(item => item.type === "image").length,
     audio: evidenceItems.filter(item => item.type === "audio").length,
+    video: evidenceItems.filter(item => item.type === "video").length,
   };
 
   const renderEvidencePreview = (item: Doc) => {
@@ -67,6 +68,18 @@ export default function Evidence() {
           <div className="text-center">
             <Video className="w-12 h-12 text-primary mx-auto mb-3" />
             <span className="text-sm font-medium">Audio Evidence</span>
+            <p className="text-xs text-muted-foreground mt-1">Click to play</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (item.type === "video") {
+      return (
+        <div className="w-full h-48 bg-gradient-to-br from-chart-4/20 to-chart-1/20 flex items-center justify-center">
+          <div className="text-center">
+            <Play className="w-12 h-12 text-chart-4 mx-auto mb-3" />
+            <span className="text-sm font-medium">Video Evidence</span>
             <p className="text-xs text-muted-foreground mt-1">Click to play</p>
           </div>
         </div>
@@ -226,7 +239,7 @@ export default function Evidence() {
               <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Play className="w-6 h-6 text-chart-4" />
               </div>
-              <div className="text-2xl font-bold text-chart-4">0</div>
+              <div className="text-2xl font-bold text-chart-4">{evidenceStats.video}</div>
               <div className="text-sm text-muted-foreground">Videos</div>
             </CardContent>
           </Card>

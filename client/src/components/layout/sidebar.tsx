@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download } from "lucide-react";
+import { Shield, ChartPie, Clock, FolderOpen, Camera, FileText, BarChart, Search, Highlighter, Download, Video } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { CASE_STATS, FOIA_REQUESTS } from "@/lib/case-data";
@@ -21,6 +21,7 @@ export function Sidebar({ className }: SidebarProps) {
         { href: "/timeline", label: "Timeline", icon: Clock },
         { href: "/documents", label: "Documents", icon: FolderOpen },
         { href: "/evidence", label: "Evidence Gallery", icon: Camera },
+        { href: "/video-evidence", label: "Video Evidence", icon: Video },
       ]
     },
     {

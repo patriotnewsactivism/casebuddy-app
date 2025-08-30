@@ -8,6 +8,7 @@ import Dashboard from "@/pages/dashboard";
 import Timeline from "@/pages/timeline";
 import Documents from "@/pages/documents";
 import Evidence from "@/pages/evidence";
+import VideoEvidence from "@/pages/video-evidence";
 import FoiaRequests from "@/pages/foia";
 import Analytics from "@/pages/analytics";
 import Search from "@/pages/search";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/timeline" component={Timeline} />
       <Route path="/documents" component={Documents} />
       <Route path="/evidence" component={Evidence} />
+      <Route path="/video-evidence" component={VideoEvidence} />
       <Route path="/foia" component={FoiaRequests} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/search" component={Search} />

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
+  allowedFileTypes?: string[];
   onGetUploadParameters: () => Promise<{
     method: "PUT";
     url: string;
@@ -50,7 +51,8 @@ interface ObjectUploaderProps {
  */
 export function ObjectUploader({
   maxNumberOfFiles = 1,
-  maxFileSize = 10485760, // 10MB default
+  maxFileSize = 104857600, // 100MB default for video support
+  allowedFileTypes,
   onGetUploadParameters,
   onComplete,
   buttonClassName,
@@ -62,6 +64,7 @@ export function ObjectUploader({
       restrictions: {
         maxNumberOfFiles,
         maxFileSize,
+        allowedFileTypes: allowedFileTypes || ['.pdf', '.doc', '.docx', '.txt', '.jpg', '.jpeg', '.png', '.gif', '.mp3', '.wav', '.mp4', '.mov', '.avi', '.mkv'],
       },
       autoProceed: false,
     })
