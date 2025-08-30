@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
 
 // Motion form schema
 const motionFormSchema = z.object({
@@ -115,7 +116,7 @@ export default function Motions() {
     window.print();
   };
 
-  const onSubmit = (data: MotionFormData) => {
+  const onSubmit = async (data: MotionFormData) => {
     const newMotion = {
       id: Date.now().toString(),
       ...data,
@@ -132,6 +133,37 @@ export default function Motions() {
     setMotions(prev => [newMotion, ...prev]);
     setIsCreateDialogOpen(false);
     form.reset();
+  };
+
+  const generateMotionWithAI = async (motionId: string) => {
+    const motion = motions.find(m => m.id === motionId);
+    if (!motion) return;
+
+    try {
+      const response = await apiRequest('/api/brief-generation/generate', {
+        method: 'POST',
+        data: {
+          caseTitle: motion.title,
+          caseNumber: motion.caseNumber || "Case Number",
+          jurisdiction: "federal",
+          clientName: "Client",
+          attorneyName: motion.assignedTo || "Attorney",
+          courtName: motion.court || "Court",
+          briefType: 'motion',
+          legalIssues: motion.tags,
+          factualBackground: motion.description || "Motion background",
+          includePrecedents: true,
+          includeStatutes: true,
+        },
+      });
+
+      if (response.success) {
+        alert('Motion generated successfully! Check the Brief Generator for the full document.');
+      }
+    } catch (error) {
+      console.error('Error generating motion:', error);
+      alert('Failed to generate motion. Please try again.');
+    }
   };
 
   // Filter motions

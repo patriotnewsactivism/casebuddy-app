@@ -89,6 +89,7 @@ export default function BriefGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("templates");
+  const [templates, setTemplates] = useState<BriefTemplate[]>([]);
   const isMobile = useIsMobile();
   const { currentCase } = useCurrentCase();
 
@@ -144,16 +145,16 @@ export default function BriefGeneratorPage() {
     setIsGenerating(true);
     try {
       const briefRequest: BriefGenerationRequest = {
-        caseTitle: currentCase.title,
+        caseTitle: currentCase.title || "Untitled Case",
         caseNumber: currentCase.caseNumber,
         jurisdiction: currentCase.jurisdiction,
-        clientName: data.clientName || currentCase.clientName,
+        clientName: data.clientName || "Client Name",
         attorneyName: data.attorneyName,
         attorneyBar: data.attorneyBar,
-        courtName: data.courtName || currentCase.courtName || "",
+        courtName: data.courtName || "Superior Court",
         briefType: (selectedTemplate?.type as any) || 'motion',
-        legalIssues: currentCase.summary ? [currentCase.summary] : ["Civil rights violation"],
-        factualBackground: currentCase.description,
+        legalIssues: ["Civil rights violation"],
+        factualBackground: currentCase.description || "Case facts to be provided",
         customSections: [
           ...(data.customIntroduction ? [{ title: "Introduction", content: data.customIntroduction }] : []),
           ...(data.customArgument ? [{ title: "Argument", content: data.customArgument }] : []),
@@ -166,10 +167,7 @@ export default function BriefGeneratorPage() {
       console.log('Generating brief with AI...', briefRequest);
       const response = await apiRequest('/api/brief-generation/generate', {
         method: 'POST',
-        body: JSON.stringify(briefRequest),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        data: briefRequest,
       });
 
       if (response.success) {
@@ -242,6 +240,10 @@ export default function BriefGeneratorPage() {
     
     loadTemplates();
   }, []);
+
+  const getTemplateById = (id: string) => {
+    return templates.find(t => t.id === id);
+  };
 
   return (
     <div className={cn("h-screen overflow-y-auto", isMobile ? "pt-16" : "")}>
@@ -698,7 +700,26 @@ export default function BriefGeneratorPage() {
                 {generatedBrief ? (
                   <ScrollArea className="h-96 w-full border rounded-lg p-4">
                     <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed">
-                      {generatedBrief}
+                      {generatedBrief && (
+              <div className="prose max-w-none">
+                <h2 className="text-2xl font-bold mb-4">{generatedBrief.title}</h2>
+                {generatedBrief.sections.map((section, index) => (
+                  <div key={index} className="mb-6">
+                    <h3 className="text-xl font-semibold mb-2">{section.heading}</h3>
+                    <div className="whitespace-pre-wrap">{section.content}</div>
+                    {section.citations && section.citations.length > 0 && (
+                      <div className="mt-2 text-sm text-gray-600">
+                        <strong>Citations:</strong> {section.citations.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div className="mt-4 text-sm text-gray-500">
+                  <p>Word Count: {generatedBrief.wordCount}</p>
+                  <p>Generated: {generatedBrief.generatedAt.toLocaleString()}</p>
+                </div>
+              </div>
+            )}
                     </pre>
                   </ScrollArea>
                 ) : (
