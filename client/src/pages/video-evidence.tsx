@@ -25,10 +25,39 @@ export default function VideoEvidence() {
     window.print();
   };
 
-  const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     console.log("Video upload completed:", result);
     if (result.successful && result.successful.length > 0) {
-      console.log('Video files uploaded successfully:', result.successful.map(file => file.name));
+      try {
+        for (const file of result.successful) {
+          const response = await fetch('/api/documents', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              documentURL: file.uploadURL,
+              title: file.name,
+              type: 'video',
+              tags: ['video-evidence', 'uploaded'],
+            }),
+          });
+          
+          if (response.ok) {
+            console.log(`Video ${file.name} processed successfully`);
+          } else {
+            console.error(`Failed to process video ${file.name}`);
+          }
+        }
+        alert(`Successfully uploaded ${result.successful.length} video(s)!`);
+        // Refresh the page to show new videos
+        window.location.reload();
+      } catch (error) {
+        console.error('Error processing uploaded videos:', error);
+        alert('Videos uploaded but there was an error processing them.');
+      }
+    } else if (result.failed && result.failed.length > 0) {
+      alert(`Upload failed: ${result.failed.map(f => f.error).join(', ')}`);
     }
   };
 
