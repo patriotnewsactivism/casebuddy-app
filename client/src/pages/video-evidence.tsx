@@ -6,16 +6,20 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Download, Upload, Grid, List, Camera, Video as VideoIcon } from "lucide-react";
+import { Play, Download, Upload, Grid, List, Camera, Video as VideoIcon, Mic } from "lucide-react";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { TranscriptionButton } from "@/components/TranscriptionButton";
 import { CASE_DOCUMENTS, Doc } from "@/lib/case-data";
 import type { UploadResult } from "@uppy/core";
+import { useToast } from "@/hooks/use-toast";
 
 export default function VideoEvidence() {
   const [selectedVideo, setSelectedVideo] = useState<Doc | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterQuality, setFilterQuality] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [transcripts, setTranscripts] = useState<Record<string, string>>({});
+  const { toast } = useToast();
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -147,6 +151,18 @@ export default function VideoEvidence() {
               <Play className="w-4 h-4 mr-2" />
               Play
             </Button>
+            <TranscriptionButton
+              audioUrl={item.path}
+              buttonText="Transcribe"
+              className="btn-sm"
+              onTranscriptionComplete={(transcript, summary) => {
+                setTranscripts(prev => ({ ...prev, [item.id]: transcript }));
+                toast({
+                  title: "Transcription Complete",
+                  description: `Audio track transcribed successfully`,
+                });
+              }}
+            />
             <Button variant="outline" size="sm">
               <Download className="w-4 h-4" />
             </Button>

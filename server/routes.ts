@@ -15,6 +15,7 @@ import { ocrService } from "./services/ocrService";
 import { precedentResearchService } from "./services/precedentResearch";
 import { semanticSearchService } from "./services/semanticSearch";
 import { couponService } from "./services/couponService";
+import { transcriptionService } from "./services/transcriptionService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware
@@ -97,6 +98,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error processing document upload:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Transcription endpoints (Premium feature - require active subscription for full features)
+  app.post("/api/transcription/audio", async (req, res) => {
+    try {
+      const { audioUrl, filePath, languageTag, includeAISummary } = req.body;
+
+      if (!audioUrl && !filePath) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Either audioUrl or filePath is required" 
+        });
+      }
+
+      let result;
+      if (audioUrl) {
+        result = await transcriptionService.transcribeAudioFromUrl(audioUrl, {
+          languageTag: languageTag || 'en-us',
+          transcriptionMode: 'highAccuracy',
+          includeAISummary: includeAISummary !== false,
+        });
+      } else {
+        result = await transcriptionService.transcribeAudioFile(filePath, {
+          languageTag: languageTag || 'en-us',
+          transcriptionMode: 'highAccuracy',
+          includeAISummary: includeAISummary !== false,
+          includeAIAnalysis: true,
+        });
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error('Transcription error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Transcription failed' 
+      });
+    }
+  });
+
+  app.get("/api/transcription/status/:interactionId", async (req, res) => {
+    try {
+      const { interactionId } = req.params;
+      const status = await transcriptionService.getInteractionStatus(interactionId);
+      res.json({ success: true, ...status });
+    } catch (error) {
+      console.error('Status check error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Status check failed' 
+      });
+    }
+  });
+
+  app.get("/api/transcription/transcript/:interactionId", async (req, res) => {
+    try {
+      const { interactionId } = req.params;
+      const transcript = await transcriptionService.getTranscript(interactionId);
+      res.json({ success: true, transcript });
+    } catch (error) {
+      console.error('Get transcript error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to get transcript' 
+      });
     }
   });
 
