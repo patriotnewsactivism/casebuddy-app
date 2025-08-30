@@ -53,6 +53,7 @@ function ProtectedRouter() {
       <Route path="/documents" component={Documents} />
       <Route path="/evidence" component={Evidence} />
       <Route path="/video-evidence" component={VideoEvidence} />
+      <Route path="/transcribe" component={TranscriptionTest} />
       <Route path="/transcription-test" component={TranscriptionTest} />
       <Route path="/motions" component={Motions} />
       <Route path="/deadlines" component={Deadlines} />
