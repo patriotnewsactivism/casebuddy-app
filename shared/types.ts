@@ -173,4 +173,165 @@ export interface BriefTemplate {
   type: 'motion' | 'complaint' | 'response' | 'appeal' | 'summary_judgment' | 'injunction';
   description: string;
   defaultSections: string[];
+  sections: Array<{
+    title: string;
+    content: string;
+    isRequired: boolean;
+  }>;
+  metadata: {
+    jurisdiction?: string;
+    courtLevel?: string;
+    estimatedLength: number;
+  };
+}
+
+// OCR and Document Processing Types
+export interface OCRResult {
+  extractedText: string;
+  confidence: number;
+  metadata: {
+    pageCount?: number;
+    documentType: string;
+    language: string;
+    processingTime: number;
+    fileSize: number;
+  };
+  entities: {
+    dates: string[];
+    names: string[];
+    organizations: string[];
+    locations: string[];
+    legalCitations: string[];
+    caseNumbers: string[];
+    statutes: string[];
+  };
+  summary: string;
+  keyPoints: string[];
+}
+
+export interface DocumentAnalysis {
+  documentType: 'complaint' | 'motion' | 'order' | 'brief' | 'contract' | 'correspondence' | 'evidence' | 'other';
+  legalIssues: string[];
+  parties: string[];
+  importantDates: Array<{
+    date: string;
+    event: string;
+    significance: string;
+  }>;
+  legalCitations: Array<{
+    citation: string;
+    type: 'case' | 'statute' | 'regulation' | 'rule';
+    relevance: number;
+  }>;
+  keyTerms: string[];
+  actionItems: string[];
+  relevanceScore: number;
+}
+
+// Legal Research Types
+export interface LegalPrecedent {
+  caseName: string;
+  citation: string;
+  court: string;
+  year: number;
+  jurisdiction: string;
+  keyHolding: string;
+  relevantFacts: string;
+  legalPrinciples: string[];
+  relevanceScore: number;
+  procedurralPosture: string;
+  outcome: string;
+  keyQuotes: string[];
+}
+
+export interface StatuteReference {
+  title: string;
+  section: string;
+  jurisdiction: string;
+  text: string;
+  applicability: string;
+  relevanceScore: number;
+  relatedCases: string[];
+}
+
+export interface ResearchQuery {
+  legalIssue: string;
+  jurisdiction?: string;
+  caseType: string;
+  factualContext: string;
+  dateRange?: {
+    startYear: number;
+    endYear: number;
+  };
+  courtLevel?: 'supreme' | 'appellate' | 'district' | 'all';
+  includeStatutes?: boolean;
+  maxResults?: number;
+}
+
+export interface ResearchResults {
+  query: ResearchQuery;
+  precedents: LegalPrecedent[];
+  statutes: StatuteReference[];
+  searchSummary: string;
+  legalTheories: string[];
+  strengthAssessment: {
+    strongPrecedents: number;
+    moderatePrecedents: number;
+    weakPrecedents: number;
+    overallStrength: 'strong' | 'moderate' | 'weak';
+    keyRisks: string[];
+  };
+  recommendedStrategy: string;
+  additionalResearchSuggestions: string[];
+}
+
+// Semantic Search Types
+export interface SemanticSearchQuery {
+  query: string;
+  caseId?: string;
+  documentTypes?: string[];
+  dateRange?: {
+    startDate: string;
+    endDate: string;
+  };
+  legalContext?: string;
+  searchType: 'general' | 'legal_research' | 'fact_finding' | 'precedent_search' | 'evidence_analysis';
+  maxResults?: number;
+  includeRelevanceScoring?: boolean;
+}
+
+export interface SemanticSearchResult {
+  documentId: string;
+  title: string;
+  documentType: string;
+  relevanceScore: number;
+  matchedContent: string[];
+  keyTermsFound: string[];
+  contextualSummary: string;
+  legalSignificance?: string;
+  relatedEntities: {
+    people: string[];
+    organizations: string[];
+    dates: string[];
+    locations: string[];
+  };
+  citationsFound: string[];
+  actionableInsights: string[];
+  extractedFacts: string[];
+  filePath?: string;
+  pageReferences?: number[];
+}
+
+export interface SemanticSearchResults {
+  query: SemanticSearchQuery;
+  results: SemanticSearchResult[];
+  totalResults: number;
+  searchAnalysis: {
+    conceptsCovered: string[];
+    legalIssuesIdentified: string[];
+    evidenceTypes: string[];
+    researchGaps: string[];
+  };
+  relatedQueries: string[];
+  searchSuggestions: string[];
 }

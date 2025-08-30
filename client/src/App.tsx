@@ -21,6 +21,7 @@ import LegalAnalytics from "@/pages/legal-analytics";
 import FoiaRequests from "@/pages/foia";
 import Analytics from "@/pages/analytics";
 import Search from "@/pages/search";
+import AdvancedSearch from "@/pages/advanced-search";
 import SubscriptionPage from "@/pages/subscription";
 import NotFound from "@/pages/not-found";
 
@@ -57,6 +58,7 @@ function ProtectedRouter() {
       <Route path="/foia" component={FoiaRequests} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/search" component={Search} />
+      <Route path="/advanced-search" component={AdvancedSearch} />
       <Route path="/subscription" component={SubscriptionPage} />
       <Route component={NotFound} />
     </Switch>

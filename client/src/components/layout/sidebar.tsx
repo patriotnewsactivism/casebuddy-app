@@ -57,6 +57,7 @@ export function Sidebar({ className }: SidebarProps) {
         { href: "/foia", label: "FOIA Requests", icon: FileText, badge: pendingFoiaCount },
         { href: "/analytics", label: "Analytics", icon: BarChart },
         { href: "/search", label: "Advanced Search", icon: Search },
+        { href: "/advanced-search", label: "AI Research", icon: Brain },
       ]
     },
     {

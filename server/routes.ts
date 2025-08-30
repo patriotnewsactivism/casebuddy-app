@@ -10,6 +10,10 @@ import authRoutes from "./auth-routes";
 import subscriptionRoutes from "./subscription-routes";
 import { optionalAuth } from "./auth";
 import { checkSubscription, requireActiveSubscription } from "./subscription-middleware";
+import { briefGenerationService } from "./services/briefGeneration";
+import { ocrService } from "./services/ocrService";
+import { precedentResearchService } from "./services/precedentResearch";
+import { semanticSearchService } from "./services/semanticSearch";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware
@@ -142,6 +146,199 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         error: error.message || 'Failed to generate brief summary' 
+      });
+    }
+  });
+
+  // Document OCR and Analysis Routes
+  app.post("/api/documents/ocr", requireActiveSubscription, async (req, res) => {
+    try {
+      const { filePath, fileName } = req.body;
+      
+      if (!filePath || !fileName) {
+        return res.status(400).json({ error: "File path and name are required" });
+      }
+      
+      const ocrResult = await ocrService.extractTextFromDocument(filePath, fileName);
+      
+      // Perform detailed analysis
+      const detailedAnalysis = await ocrService.performDetailedDocumentAnalysis(ocrResult);
+      
+      res.json({ 
+        success: true, 
+        ocr: ocrResult,
+        analysis: detailedAnalysis
+      });
+    } catch (error: any) {
+      console.error('OCR processing error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to process document' 
+      });
+    }
+  });
+
+  // Legal Precedent Research Routes
+  app.post("/api/legal-research/precedents", requireActiveSubscription, async (req, res) => {
+    try {
+      const researchQuery = req.body;
+      
+      if (!researchQuery.legalIssue) {
+        return res.status(400).json({ error: "Legal issue is required" });
+      }
+      
+      const results = await precedentResearchService.conductResearch(researchQuery);
+      
+      res.json({ 
+        success: true, 
+        research: results
+      });
+    } catch (error: any) {
+      console.error('Legal research error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to conduct legal research' 
+      });
+    }
+  });
+
+  // Semantic Document Search Routes
+  app.post("/api/documents/semantic-search", requireActiveSubscription, async (req, res) => {
+    try {
+      const searchQuery = req.body;
+      
+      if (!searchQuery.query) {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+      
+      const results = await semanticSearchService.performSemanticSearch(searchQuery);
+      
+      res.json({ 
+        success: true, 
+        results: results
+      });
+    } catch (error: any) {
+      console.error('Semantic search error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to perform semantic search' 
+      });
+    }
+  });
+
+  // Find Similar Documents
+  app.get("/api/documents/:id/similar", requireActiveSubscription, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const maxResults = parseInt(req.query.maxResults as string) || 10;
+      
+      const similarDocs = await semanticSearchService.findSimilarDocuments(id, maxResults);
+      
+      res.json({ 
+        success: true, 
+        similarDocuments: similarDocs
+      });
+    } catch (error: any) {
+      console.error('Similar documents search error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to find similar documents' 
+      });
+    }
+  });
+
+  // Advanced Search by Legal Concept
+  app.post("/api/legal-research/concept-search", requireActiveSubscription, async (req, res) => {
+    try {
+      const { concept, caseId } = req.body;
+      
+      if (!concept) {
+        return res.status(400).json({ error: "Legal concept is required" });
+      }
+      
+      const results = await semanticSearchService.searchByLegalConcept(concept, caseId);
+      
+      res.json({ 
+        success: true, 
+        results: results
+      });
+    } catch (error: any) {
+      console.error('Legal concept search error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to search by legal concept' 
+      });
+    }
+  });
+
+  // Evidence Search
+  app.post("/api/legal-research/evidence-search", requireActiveSubscription, async (req, res) => {
+    try {
+      const { factPattern, caseId } = req.body;
+      
+      if (!factPattern) {
+        return res.status(400).json({ error: "Fact pattern is required" });
+      }
+      
+      const results = await semanticSearchService.findEvidence(factPattern, caseId);
+      
+      res.json({ 
+        success: true, 
+        results: results
+      });
+    } catch (error: any) {
+      console.error('Evidence search error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to search for evidence' 
+      });
+    }
+  });
+
+  // Precedent Search
+  app.post("/api/legal-research/precedent-search", requireActiveSubscription, async (req, res) => {
+    try {
+      const { legalIssue } = req.body;
+      
+      if (!legalIssue) {
+        return res.status(400).json({ error: "Legal issue is required" });
+      }
+      
+      const results = await semanticSearchService.researchPrecedents(legalIssue);
+      
+      res.json({ 
+        success: true, 
+        results: results
+      });
+    } catch (error: any) {
+      console.error('Precedent search error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to search precedents' 
+      });
+    }
+  });
+
+  // Add document to search index
+  app.post("/api/documents/index", requireActiveSubscription, async (req, res) => {
+    try {
+      const document = req.body;
+      
+      if (!document.id || !document.title) {
+        return res.status(400).json({ error: "Document ID and title are required" });
+      }
+      
+      await semanticSearchService.addDocumentToIndex(document);
+      
+      res.json({ 
+        success: true, 
+        message: "Document added to search index"
+      });
+    } catch (error: any) {
+      console.error('Document indexing error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to index document' 
       });
     }
   });
