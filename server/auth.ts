@@ -96,12 +96,18 @@ export class AuthService {
       // Hash password
       const hashedPassword = await this.hashPassword(userData.password);
 
-      // Create user
+      // Set trial end date (2 weeks from now)
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+      // Create user with trial
       const newUser = await db
         .insert(users)
         .values({
           ...userData,
           password: hashedPassword,
+          subscriptionStatus: "trial",
+          trialEndsAt,
         })
         .returning();
 

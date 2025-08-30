@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
+import { SubscriptionGate } from "@/components/subscription-gate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +36,7 @@ import {
   categorizeRisk
 } from "@/lib/legal-analytics";
 
-export default function LegalAnalyticsPage() {
+function LegalAnalyticsContent() {
   const [prediction, setPrediction] = useState<CaseOutcomePrediction | null>(null);
   const [judgeAnalytics, setJudgeAnalytics] = useState<JudgeAnalytics | null>(null);
   const [precedents, setPrecedents] = useState<LegalPrecedent[]>([]);
@@ -600,5 +601,16 @@ export default function LegalAnalyticsPage() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+export default function LegalAnalyticsPage() {
+  return (
+    <SubscriptionGate 
+      feature="AI-Powered Legal Analytics" 
+      description="Get case outcome predictions, judge behavior analysis, legal precedent finder, and strategic recommendations powered by advanced AI."
+    >
+      <LegalAnalyticsContent />
+    </SubscriptionGate>
   );
 }

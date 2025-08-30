@@ -7,7 +7,9 @@ import {
 } from "./objectStorage";
 import { LegalAnalyticsService } from "./legal-analytics";
 import authRoutes from "./auth-routes";
+import subscriptionRoutes from "./subscription-routes";
 import { optionalAuth } from "./auth";
+import { checkSubscription, requireActiveSubscription } from "./subscription-middleware";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware
@@ -16,6 +18,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Authentication routes
   app.use("/api/auth", authRoutes);
+  
+  // Subscription routes
+  app.use("/api/subscription", subscriptionRoutes);
+  
+  // Add subscription check for protected routes
+  app.use(checkSubscription);
 
   // This endpoint is used to serve public assets.
   app.get("/public-objects/:filePath(*)", async (req, res) => {
@@ -87,13 +95,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Legal Analytics API Routes
-  app.post("/api/legal-analytics/predict-outcome", LegalAnalyticsService.predictCaseOutcome);
-  app.post("/api/legal-analytics/judge-analytics", LegalAnalyticsService.analyzeJudge);
-  app.post("/api/legal-analytics/find-precedents", LegalAnalyticsService.findRelevantPrecedents);
-  app.post("/api/legal-analytics/strategy-recommendations", LegalAnalyticsService.generateStrategyRecommendations);
-  app.post("/api/legal-analytics/analyze-evidence", LegalAnalyticsService.analyzeEvidence);
-  app.post("/api/legal-analytics/similar-cases", LegalAnalyticsService.findSimilarCases);
+  // Legal Analytics API Routes (Premium features - require active subscription)
+  app.post("/api/legal-analytics/predict-outcome", requireActiveSubscription, LegalAnalyticsService.predictCaseOutcome);
+  app.post("/api/legal-analytics/judge-analytics", requireActiveSubscription, LegalAnalyticsService.analyzeJudge);
+  app.post("/api/legal-analytics/find-precedents", requireActiveSubscription, LegalAnalyticsService.findRelevantPrecedents);
+  app.post("/api/legal-analytics/strategy-recommendations", requireActiveSubscription, LegalAnalyticsService.generateStrategyRecommendations);
+  app.post("/api/legal-analytics/analyze-evidence", requireActiveSubscription, LegalAnalyticsService.analyzeEvidence);
+  app.post("/api/legal-analytics/similar-cases", requireActiveSubscription, LegalAnalyticsService.findSimilarCases);
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
