@@ -113,14 +113,13 @@ For this demo, we're showing you how the interface works when transcription is s
     const response = await fetch(`${ELEVATEAI_BASE_URL}/interactions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiToken}`,
+        'X-API-Token': this.apiToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        type: 'audio',
         languageTag,
-        version: 'default',
-        transcriptionMode,
-        verticalSpecific: 'legal', // Optimize for legal terminology
+        vertical: 'default'
       }),
     });
 
@@ -148,7 +147,7 @@ For this demo, we're showing you how the interface works when transcription is s
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
+          'X-API-Token': this.apiToken,
         },
         body: formData,
       }
@@ -169,7 +168,7 @@ For this demo, we're showing you how the interface works when transcription is s
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
+          'X-API-Token': this.apiToken,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ url: audioUrl }),
@@ -187,7 +186,7 @@ For this demo, we're showing you how the interface works when transcription is s
       `${ELEVATEAI_BASE_URL}/interactions/${interactionId}/status`,
       {
         headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
+          'X-API-Token': this.apiToken,
         },
       }
     );
@@ -212,7 +211,7 @@ For this demo, we're showing you how the interface works when transcription is s
       `${ELEVATEAI_BASE_URL}/interactions/${interactionId}/transcript`,
       {
         headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
+          'X-API-Token': this.apiToken,
         },
       }
     );
@@ -232,7 +231,7 @@ For this demo, we're showing you how the interface works when transcription is s
       `${ELEVATEAI_BASE_URL}/interactions/${interactionId}/autosummary`,
       {
         headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
+          'X-API-Token': this.apiToken,
         },
       }
     );
@@ -252,7 +251,7 @@ For this demo, we're showing you how the interface works when transcription is s
       `${ELEVATEAI_BASE_URL}/interactions/${interactionId}/airesults`,
       {
         headers: {
-          'Authorization': `Bearer ${this.apiToken}`,
+          'X-API-Token': this.apiToken,
         },
       }
     );
@@ -423,46 +422,53 @@ For this demo, we're showing you how the interface works when transcription is s
         return await this.getDemoTranscription();
       }
 
-      // Check if token might be invalid and fall back to demo
-      if (this.apiToken.length < 20) {
-        console.log('API token appears invalid, using demo mode');
-        return await this.getDemoTranscription();
+      // Declare interaction with downloadUri directly
+      const response = await fetch(`${ELEVATEAI_BASE_URL}/interactions`, {
+        method: 'POST',
+        headers: {
+          'X-API-Token': this.apiToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'audio',
+          languageTag: options.languageTag || 'en-US',
+          vertical: 'default',
+          downloadUri: audioUrl
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('ElevateAI API error:', errorText);
+        throw new Error(`Failed to create interaction: ${response.statusText}`);
       }
 
-      // Try to declare interaction, fall back to demo on auth error
-      let interactionId: string;
-      try {
-        const result = await this.declareInteraction(
-          options.languageTag || 'en-us',
-          options.transcriptionMode === 'highAccuracy'
-        );
-        interactionId = result.interactionId;
-      } catch (error: any) {
-        if (error.message?.includes('Unauthorized')) {
-          console.log('API authentication failed, using demo mode');
-          return await this.getDemoTranscription();
-        }
-        throw error;
-      }
+      const data = await response.json() as any;
+      const interactionId = data.interactionIdentifier;
 
-      // Step 2: Upload from URL
-      const uploaded = await this.uploadAudioFromUrl(interactionId, audioUrl);
-      
-      if (!uploaded) {
-        throw new Error('Failed to upload audio from URL');
-      }
-
-      // Step 3: Wait for processing
+      // Step 2: Wait for processing
       await this.waitForCompletion(interactionId);
 
       // Step 4: Get transcript
       const transcriptData = await this.getTranscript(interactionId);
       
       let fullTranscript = '';
-      if (transcriptData && transcriptData.segments) {
-        transcriptData.segments.forEach((segment: any) => {
-          fullTranscript += segment.text + ' ';
-        });
+      // ElevateAI returns transcript with participant data
+      if (transcriptData) {
+        if (transcriptData.allParticipants) {
+          // Use the combined transcript from all participants
+          fullTranscript = transcriptData.allParticipants;
+        } else if (transcriptData.participantOne || transcriptData.participantTwo) {
+          // Combine individual participant transcripts
+          fullTranscript = [
+            transcriptData.participantOne || '',
+            transcriptData.participantTwo || ''
+          ].filter(Boolean).join(' ');
+        } else if (typeof transcriptData === 'string') {
+          fullTranscript = transcriptData;
+        } else if (transcriptData.transcript) {
+          fullTranscript = transcriptData.transcript;
+        }
       }
 
       // Step 5: Get optional AI summary
