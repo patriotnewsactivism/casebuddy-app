@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --bg:#0b1020; --panel:#121a33; --muted:#9aa3b2; --text:#eaf0ff;
+}
+body{@apply min-h-screen text-[var(--text)] bg-[var(--bg)]}
+.card{@apply bg-[var(--panel)] bg-opacity-95 border border-white/10 rounded-2xl p-5}
+.kpi{@apply bg-white/5 rounded-xl p-3}
+.badge{@apply text-xs px-2 py-1 rounded-full bg-white/10 text-[var(--muted)]}
+.btn{@apply inline-flex items-center gap-2 font-semibold bg-brand text-[#0b1020] px-4 py-2 rounded-xl hover:bg-brand-dark transition}
+.input{@apply bg-white/10 border border-white/10 text-white px-3 py-2 rounded-xl}
+.table td,.table th{@apply border-b border-white/10 p-2}
